@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import Navbar from './components/Navbar.jsx';
-import Hero from './components/Hero.jsx';
-import About from './components/About.jsx';
-import Packages from './components/Packages.jsx';
-import Contact from './components/Contact.jsx';
-import Footer from './components/Footer.jsx';
-import AuthModal from './components/AuthModal.jsx';
-import AuthCallback from './components/AuthCallback.jsx';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import About from './components/About';
+import Packages from './components/Packages';
+import Contact from './components/Contact';
+import Footer from './components/Footer';
+import AuthModal from './components/AuthModal';
+import AuthCallback from './components/AuthCallback';
 
 export default function App() {
-  const [authOpen, setAuthOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState<boolean>(false);
 
   if (window.location.pathname === '/auth/callback') {
     return <AuthCallback />;

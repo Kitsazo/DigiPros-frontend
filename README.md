@@ -1,6 +1,6 @@
 # DigiPros Marketing — Website
 
-Single-page marketing site built with React + Vite (plain JavaScript).
+Single-page marketing site built with React + Vite + TypeScript.
 Outputs static files, ready to host anywhere DNS points to.
 
 ## Project structure
@@ -9,21 +9,29 @@ Outputs static files, ready to host anywhere DNS points to.
 Frontend/
 ├── index.html
 ├── package.json
-├── vite.config.js
+├── tsconfig.json · tsconfig.app.json · tsconfig.node.json
+├── vite.config.ts
 ├── public/
 │   └── favicon.svg
 └── src/
-    ├── main.jsx
-    ├── App.jsx
+    ├── main.tsx
+    ├── App.tsx
+    ├── vite-env.d.ts
     ├── styles/
     │   └── global.css        # design tokens + base styles
+    ├── auth/
+    │   ├── types.ts          # User, payloads, OAuthProvider
+    │   ├── api.ts            # fetch wrapper + tokenStore
+    │   └── AuthContext.tsx   # AuthProvider + useAuth()
     └── components/
-        ├── Navbar.(jsx|css)
-        ├── Hero.(jsx|css)
-        ├── About.(jsx|css)
-        ├── Packages.(jsx|css)
-        ├── Contact.(jsx|css)
-        └── Footer.(jsx|css)
+        ├── Navbar.(tsx|css)
+        ├── Hero.(tsx|css)
+        ├── About.(tsx|css)
+        ├── Packages.(tsx|css)
+        ├── Contact.(tsx|css)
+        ├── Footer.(tsx|css)
+        ├── AuthModal.(tsx|css)
+        └── AuthCallback.tsx
 ```
 
 Each component owns its own CSS file. Color tokens (white / blue / yellow)
@@ -31,14 +39,16 @@ live in `src/styles/global.css` under `:root` — change them in one place to
 re-skin the whole site.
 
 Auth lives under `src/auth/`:
-- `api.js` — tiny `fetch` wrapper + `tokenStore` (localStorage).
-- `AuthContext.jsx` — `useAuth()` exposes `user`, `login`, `signup`,
+- `types.ts` — shared TypeScript types.
+- `api.ts` — typed `fetch` wrapper, `ApiError`, and `tokenStore`
+  (localStorage).
+- `AuthContext.tsx` — `useAuth()` exposes `user`, `login`, `signup`,
   `logout`, `oauthLogin('google'|'apple')`, and which providers the
   backend has configured.
 
-`AuthModal.jsx` renders the email form + OAuth buttons. After an OAuth
+`AuthModal.tsx` renders the email form + OAuth buttons. After an OAuth
 redirect the backend lands at `/auth/callback?token=…` which is handled
-by `AuthCallback.jsx`.
+by `AuthCallback.tsx`.
 
 ## Local development
 
@@ -52,7 +62,8 @@ npm run dev                  # http://localhost:5173
 ## Build for production
 
 ```bash
-npm run build        # outputs static files to Frontend/dist
+npm run typecheck    # tsc -b --noEmit, optional pre-flight
+npm run build        # type-checks, then outputs static files to Frontend/dist
 npm run preview      # local smoke-test of the production build
 ```
 

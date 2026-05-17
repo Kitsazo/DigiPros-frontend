@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '../auth/AuthContext.jsx';
+import { useEffect, useState, type CSSProperties } from 'react';
+import { useAuth } from '../auth/AuthContext';
 
 export default function AuthCallback() {
   const { applyToken } = useAuth();
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -17,10 +17,11 @@ export default function AuthCallback() {
     if (token) {
       applyToken(token);
     }
-    setTimeout(() => {
+    const t = window.setTimeout(() => {
       window.history.replaceState({}, '', '/');
       window.location.reload();
     }, 350);
+    return () => window.clearTimeout(t);
   }, [applyToken]);
 
   return (
@@ -37,7 +38,7 @@ export default function AuthCallback() {
   );
 }
 
-const callbackStyle = {
+const callbackStyle: CSSProperties = {
   minHeight: '100vh',
   display: 'flex',
   alignItems: 'center',

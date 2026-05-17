@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../auth/AuthContext.jsx';
+import { useAuth } from '../auth/AuthContext';
 import './Navbar.css';
 
-const links = [
+interface NavbarProps {
+  onOpenAuth: () => void;
+}
+
+const links: { href: string; label: string }[] = [
   { href: '#about', label: 'About' },
   { href: '#packages', label: 'Packages' },
   { href: '#contact', label: 'Contact' },
 ];
 
-export default function Navbar({ onOpenAuth }) {
+export default function Navbar({ onOpenAuth }: NavbarProps) {
   const { user, logout, loading } = useAuth();
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState<boolean>(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);

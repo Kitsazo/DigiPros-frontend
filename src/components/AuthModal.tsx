@@ -1,22 +1,37 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '../auth/AuthContext.jsx';
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useAuth } from '../auth/AuthContext';
 import './AuthModal.css';
 
-const tabs = [
+interface AuthModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+type Mode = 'login' | 'signup';
+
+const tabs: { id: Mode; label: string }[] = [
   { id: 'login', label: 'Log in' },
   { id: 'signup', label: 'Sign up' },
 ];
 
-export default function AuthModal({ open, onClose }) {
+interface FormState {
+  email: string;
+  password: string;
+  name: string;
+}
+
+export default function AuthModal({ open, onClose }: AuthModalProps) {
   const { login, signup, oauthLogin, providers } = useAuth();
-  const [mode, setMode] = useState('login');
-  const [form, setForm] = useState({ email: '', password: '', name: '' });
-  const [error, setError] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [mode, setMode] = useState<Mode>('login');
+  const [form, setForm] = useState<FormState>({ email: '', password: '', name: '' });
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e) => e.key === 'Escape' && onClose();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
@@ -27,9 +42,12 @@ export default function AuthModal({ open, onClose }) {
 
   if (!open) return null;
 
-  const onChange = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const onChange =
+    (k: keyof FormState) =>
+    (e: ChangeEvent<HTMLInputElement>) =>
+      setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const onSubmit = async (e) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
@@ -45,7 +63,7 @@ export default function AuthModal({ open, onClose }) {
       }
       onClose();
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setSubmitting(false);
     }

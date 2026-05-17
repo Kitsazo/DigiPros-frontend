@@ -1,6 +1,13 @@
+import type { ReactNode } from 'react';
 import './About.css';
 
-const features = [
+interface Feature {
+  title: string;
+  body: string;
+  icon: ReactNode;
+}
+
+const features: Feature[] = [
   {
     title: 'Strategy first',
     body: 'Every campaign starts with research, positioning, and a clear plan — not guesswork.',

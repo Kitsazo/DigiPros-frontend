@@ -1,6 +1,14 @@
+import type { ReactNode } from 'react';
 import './Contact.css';
 
-const channels = [
+interface Channel {
+  label: string;
+  value: string;
+  href: string;
+  icon: ReactNode;
+}
+
+const channels: Channel[] = [
   {
     label: 'Email us',
     value: 'hello@digipros.marketing',

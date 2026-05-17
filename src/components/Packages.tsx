@@ -1,7 +1,17 @@
 import { useState } from 'react';
 import './Packages.css';
 
-const packages = [
+interface Package {
+  id: string;
+  name: string;
+  tagline: string;
+  price: string;
+  cadence: string;
+  features: string[];
+  featured?: boolean;
+}
+
+const packages: Package[] = [
   {
     id: 'starter',
     name: 'Starter',
@@ -45,7 +55,7 @@ const packages = [
 ];
 
 export default function Packages() {
-  const [selected, setSelected] = useState('growth');
+  const [selected, setSelected] = useState<string>('growth');
 
   return (
     <section id="packages" className="packages section">
