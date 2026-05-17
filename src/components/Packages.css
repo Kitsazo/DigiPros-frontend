@@ -1,0 +1,166 @@
+.packages {
+  background: var(--color-white);
+}
+
+.packages-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.packages-head {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.packages-title {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+}
+
+.packages-sub {
+  color: var(--color-ink-soft);
+  font-size: 17px;
+}
+
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.package-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  text-align: left;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  border: 1.5px solid var(--color-cloud);
+  color: var(--color-ink);
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease, background 0.2s ease;
+}
+
+.package-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-blue-light);
+}
+
+.package-card.is-featured {
+  border-color: var(--color-blue);
+  box-shadow: var(--shadow-md);
+}
+
+.package-card.is-selected {
+  border-color: var(--color-blue);
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(
+    180deg,
+    rgba(219, 234, 254, 0.4) 0%,
+    rgba(255, 255, 255, 1) 60%
+  );
+}
+
+.package-badge {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.package-head h3 {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.package-tagline {
+  margin-top: 6px;
+  color: var(--color-ink-soft);
+  font-size: 14px;
+}
+
+.package-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  border-top: 1px dashed var(--color-cloud);
+  border-bottom: 1px dashed var(--color-cloud);
+  padding: 16px 0;
+}
+
+.package-price .amount {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--color-blue);
+  letter-spacing: -0.03em;
+}
+
+.package-price .cadence {
+  color: var(--color-ink-soft);
+  font-size: 14px;
+}
+
+.package-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.package-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14.5px;
+  color: var(--color-ink);
+}
+
+.package-features li svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--color-blue);
+}
+
+.package-select {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--color-snow);
+  color: var(--color-ink);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.package-card:hover .package-select {
+  background: var(--color-blue-light);
+  color: var(--color-blue);
+}
+
+.package-card.is-selected .package-select {
+  background: var(--color-blue);
+  color: var(--color-white);
+}
+
+.packages-foot {
+  display: flex;
+  justify-content: center;
+}

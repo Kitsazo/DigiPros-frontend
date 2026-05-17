@@ -1,0 +1,94 @@
+.about {
+  background: var(--color-snow);
+}
+
+.about-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.about-head {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.about-title {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+}
+
+.about-title em {
+  font-style: normal;
+  color: var(--color-blue);
+  position: relative;
+  white-space: nowrap;
+}
+
+.about-title em::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 8px;
+  background: var(--color-yellow);
+  opacity: 0.6;
+  z-index: -1;
+  border-radius: 4px;
+}
+
+.about-sub {
+  color: var(--color-ink-soft);
+  font-size: 17px;
+}
+
+.about-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.about-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-cloud);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.about-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-blue-light);
+}
+
+.about-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--color-blue-light);
+  color: var(--color-blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.about-card p {
+  color: var(--color-ink-soft);
+  font-size: 15px;
+}

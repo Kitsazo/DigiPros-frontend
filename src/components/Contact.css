@@ -1,0 +1,120 @@
+.contact {
+  background: var(--color-snow);
+}
+
+.contact-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-blue);
+  color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: clamp(36px, 6vw, 64px);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+  box-shadow: var(--shadow-lg);
+}
+
+.contact-card-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(250, 204, 21, 0.35) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 15% 110%,
+      rgba(37, 99, 235, 0.6) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+}
+
+.contact-text,
+.contact-actions {
+  position: relative;
+  z-index: 1;
+}
+
+.contact-text .eyebrow {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-white);
+}
+
+.contact-title {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  margin-top: 14px;
+}
+
+.contact-title .accent {
+  color: var(--color-yellow);
+}
+
+.contact-sub {
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 17px;
+  max-width: 56ch;
+}
+
+.contact-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.contact-chip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-md);
+  transition: background 0.2s ease, transform 0.15s ease,
+    border-color 0.2s ease;
+  color: var(--color-white);
+}
+
+.contact-chip:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--color-yellow);
+  transform: translateY(-2px);
+}
+
+.contact-chip-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-chip-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-chip-text strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.contact-chip-text span {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+@media (min-width: 880px) {
+  .contact-card {
+    grid-template-columns: 1.1fr 1fr;
+    align-items: center;
+  }
+}

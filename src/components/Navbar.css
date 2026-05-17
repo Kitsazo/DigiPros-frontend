@@ -1,0 +1,134 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease, background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navbar.is-scrolled {
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom-color: var(--color-cloud);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.navbar-logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.navbar-wordmark .accent {
+  color: var(--color-yellow);
+}
+
+.navbar-links {
+  display: none;
+  gap: 28px;
+  font-size: 15px;
+  color: var(--color-ink-soft);
+  font-weight: 500;
+}
+
+.navbar-links a {
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.navbar-links a:hover {
+  color: var(--color-blue);
+}
+
+.navbar-links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background: var(--color-yellow);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+
+.navbar-links a:hover::after {
+  transform: scaleX(1);
+}
+
+.navbar-cta {
+  padding: 10px 18px;
+  font-size: 14px;
+}
+
+.navbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-link-btn {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.navbar-link-btn:hover {
+  color: var(--color-blue);
+  background: var(--color-snow);
+}
+
+.navbar-user {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar-loading {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--color-blue-light);
+  border-top-color: var(--color-blue);
+  animation: navbar-spin 0.8s linear infinite;
+}
+
+@keyframes navbar-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (min-width: 760px) {
+  .navbar-links {
+    display: inline-flex;
+  }
+}
