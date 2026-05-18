@@ -7,6 +7,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import AuthCallback from './components/AuthCallback';
+import ThemeToggle from './components/ThemeToggle';
 
 export default function App() {
   const [authOpen, setAuthOpen] = useState<boolean>(false);
@@ -26,6 +27,7 @@ export default function App() {
       </main>
       <Footer />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      <ThemeToggle />
     </div>
   );
 }

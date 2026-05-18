@@ -40,7 +40,7 @@
   text-align: left;
   padding: 28px;
   border-radius: var(--radius-lg);
-  background: var(--color-white);
+  background: var(--color-elevated);
   border: 1.5px solid var(--color-cloud);
   color: var(--color-ink);
   transition: transform 0.2s ease, box-shadow 0.2s ease,
@@ -63,8 +63,8 @@
   box-shadow: var(--shadow-lg);
   background: linear-gradient(
     180deg,
-    rgba(219, 234, 254, 0.4) 0%,
-    rgba(255, 255, 255, 1) 60%
+    color-mix(in srgb, var(--color-blue) 14%, var(--color-elevated)) 0%,
+    var(--color-elevated) 60%
   );
 }
 
@@ -73,7 +73,7 @@
   top: -12px;
   right: 20px;
   background: var(--color-yellow);
-  color: var(--color-ink);
+  color: var(--color-on-accent);
   font-size: 12px;
   font-weight: 700;
   padding: 5px 10px;
@@ -151,13 +151,13 @@
 }
 
 .package-card:hover .package-select {
-  background: var(--color-blue-light);
+  background: color-mix(in srgb, var(--color-blue) 18%, transparent);
   color: var(--color-blue);
 }
 
 .package-card.is-selected .package-select {
   background: var(--color-blue);
-  color: var(--color-white);
+  color: var(--color-on-brand);
 }
 
 .packages-foot {

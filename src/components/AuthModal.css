@@ -16,7 +16,8 @@
   position: relative;
   width: 100%;
   max-width: 420px;
-  background: var(--color-white);
+  background: var(--color-elevated);
+  border: 1px solid var(--color-cloud);
   border-radius: var(--radius-lg);
   padding: 32px;
   box-shadow: var(--shadow-lg);
@@ -67,7 +68,7 @@
   padding: 12px 14px;
   border-radius: 10px;
   border: 1px solid var(--color-cloud);
-  background: var(--color-white);
+  background: var(--color-elevated);
   font-size: 14px;
   font-weight: 600;
   color: var(--color-ink);
@@ -75,19 +76,20 @@
 }
 
 .auth-provider:hover {
-  border-color: var(--color-blue-light);
+  border-color: var(--color-blue);
   background: var(--color-snow);
 }
 
-.auth-provider-apple {
-  background: var(--color-ink);
-  color: var(--color-white);
-  border-color: var(--color-ink);
+.auth-provider-apple,
+.auth-provider-apple:hover {
+  background: #000;
+  color: #fff;
+  border-color: #000;
 }
 
 .auth-provider-apple:hover {
-  background: #0f1e44;
-  border-color: #0f1e44;
+  background: #1a1a1a;
+  border-color: #1a1a1a;
 }
 
 .auth-providers-empty {
@@ -132,7 +134,7 @@
 }
 
 .auth-tab.is-active {
-  background: var(--color-white);
+  background: var(--color-elevated);
   color: var(--color-blue);
   box-shadow: var(--shadow-sm);
 }
@@ -157,7 +159,7 @@
   padding: 11px 12px;
   border-radius: 10px;
   border: 1px solid var(--color-cloud);
-  background: var(--color-white);
+  background: var(--color-elevated);
   color: var(--color-ink);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -165,13 +167,13 @@
 
 .auth-form input:focus {
   border-color: var(--color-blue);
-  box-shadow: 0 0 0 3px var(--color-blue-light);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-blue) 30%, transparent);
 }
 
 .auth-error {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  background: color-mix(in srgb, #ef4444 14%, var(--color-white));
+  color: color-mix(in srgb, #ef4444 80%, var(--color-ink));
+  border: 1px solid color-mix(in srgb, #ef4444 35%, var(--color-cloud));
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 13px;

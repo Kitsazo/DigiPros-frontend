@@ -9,6 +9,16 @@
       content="DigiPros Marketing — bold digital strategy, performance ads, and brand growth packages tailored to ambitious businesses."
     />
     <title>DigiPros Marketing — Grow Bolder, Faster.</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('digipros.theme');
+          if (t === 'light' || t === 'dark') {
+            document.documentElement.setAttribute('data-theme', t);
+          }
+        } catch (_) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
