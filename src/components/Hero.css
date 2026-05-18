@@ -102,16 +102,10 @@
 }
 
 .hero-title {
-  position: relative;
   font-size: clamp(40px, 7vw, 84px);
   font-weight: 800;
   max-width: 14ch;
   margin-top: 8px;
-}
-
-.hero-title-text {
-  position: relative;
-  z-index: 1;
 }
 
 .hero-title .highlight {
@@ -126,49 +120,8 @@
   color: transparent;
 }
 
-/* Three "snakes" trace the outlines of every letter. Each snake is a
-   stroked SVG copy of the title; staggered animation delays keep three
-   visible at once. The blur filter gives a white core that fades to
-   transparent at the edges. */
-.hero-title-snakes {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-  pointer-events: none;
-  overflow: visible;
-}
-
-.hero-snake text {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  letter-spacing: inherit;
-  fill: none;
-  stroke: #ffffff;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 32 220;
-  animation: hero-snake-crawl 6s linear infinite;
-}
-
-[data-theme='light'] .hero-snake text {
-  stroke: var(--color-blue);
-}
-
-.hero-snake-2 text { animation-delay: -2s; }
-.hero-snake-3 text { animation-delay: -4s; }
-
-@keyframes hero-snake-crawl {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -252; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .hero-bg .blob,
-  .hero-snake text {
+  .hero-bg .blob {
     animation: none;
   }
 }
