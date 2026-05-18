@@ -107,8 +107,6 @@
   font-weight: 800;
   max-width: 14ch;
   margin-top: 8px;
-  -webkit-text-stroke: 0.4px
-    color-mix(in srgb, var(--color-ink) 22%, transparent);
 }
 
 .hero-title-text {
@@ -128,52 +126,49 @@
   color: transparent;
 }
 
-/* Animated sweeping stroke: a duplicate of the title rendered as
-   outline-only, revealed through a narrow horizontally-animated mask. */
-.hero-title::after {
-  content: attr(data-text);
+/* Three "snakes" trace the outlines of every letter. Each snake is a
+   stroked SVG copy of the title; staggered animation delays keep three
+   visible at once. The blur filter gives a white core that fades to
+   transparent at the edges. */
+.hero-title-snakes {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 2;
   pointer-events: none;
-  color: transparent;
-  -webkit-text-stroke: 0.9px var(--color-blue);
-  background: transparent;
-  -webkit-mask-image: linear-gradient(
-    100deg,
-    transparent 0%,
-    transparent 38%,
-    #000 50%,
-    transparent 62%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    100deg,
-    transparent 0%,
-    transparent 38%,
-    #000 50%,
-    transparent 62%,
-    transparent 100%
-  );
-  -webkit-mask-size: 220% 100%;
-  mask-size: 220% 100%;
-  animation: hero-title-stroke-sweep 5.5s linear infinite;
+  overflow: visible;
 }
 
-@keyframes hero-title-stroke-sweep {
-  from {
-    -webkit-mask-position: 220% 0;
-    mask-position: 220% 0;
-  }
-  to {
-    -webkit-mask-position: -120% 0;
-    mask-position: -120% 0;
-  }
+.hero-snake text {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 32 220;
+  animation: hero-snake-crawl 6s linear infinite;
+}
+
+[data-theme='light'] .hero-snake text {
+  stroke: var(--color-blue);
+}
+
+.hero-snake-2 text { animation-delay: -2s; }
+.hero-snake-3 text { animation-delay: -4s; }
+
+@keyframes hero-snake-crawl {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -252; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-bg .blob,
-  .hero-title::after {
+  .hero-snake text {
     animation: none;
   }
 }
