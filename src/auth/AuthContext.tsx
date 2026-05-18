@@ -21,6 +21,7 @@ interface AuthContextValue {
   providers: OAuthProvider[];
   signup: (payload: SignupPayload) => Promise<void>;
   login: (payload: LoginPayload) => Promise<void>;
+  loginWithGoogle: (googleAccessToken: string) => Promise<void>;
   logout: () => void;
   oauthLogin: (provider: OAuthProvider) => void;
   applyToken: (token: string | null) => void;
@@ -85,6 +86,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     applyToken(access_token);
   };
 
+  const loginWithGoogle = async (googleAccessToken: string) => {
+    const { access_token } = await api.googleToken(googleAccessToken);
+    applyToken(access_token);
+  };
+
   const logout = () => applyToken(null);
 
   const oauthLogin = (provider: OAuthProvider) => {
@@ -100,6 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         providers,
         signup,
         login,
+        loginWithGoogle,
         logout,
         oauthLogin,
         applyToken,

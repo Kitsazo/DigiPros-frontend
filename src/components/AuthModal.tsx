@@ -1,6 +1,9 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../auth/AuthContext';
 import './AuthModal.css';
+
+const GOOGLE_ENABLED = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
 interface AuthModalProps {
   open: boolean;
@@ -21,11 +24,27 @@ interface FormState {
 }
 
 export default function AuthModal({ open, onClose }: AuthModalProps) {
-  const { login, signup, oauthLogin, providers } = useAuth();
+  const { login, signup, loginWithGoogle, oauthLogin, providers } = useAuth();
   const [mode, setMode] = useState<Mode>('login');
   const [form, setForm] = useState<FormState>({ email: '', password: '', name: '' });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
+
+  const googleSignIn = useGoogleLogin({
+    onSuccess: async (response) => {
+      setError(null);
+      setSubmitting(true);
+      try {
+        await loginWithGoogle(response.access_token);
+        onClose();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Google sign-in failed');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    onError: () => setError('Google sign-in was cancelled or failed.'),
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -80,11 +99,12 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
         <p className="auth-sub">Access proposals, reports, and your DigiPros dashboard.</p>
 
         <div className="auth-providers">
-          {providers.includes('google') && (
+          {GOOGLE_ENABLED && (
             <button
               type="button"
               className="auth-provider"
-              onClick={() => oauthLogin('google')}
+              onClick={() => googleSignIn()}
+              disabled={submitting}
             >
               <GoogleIcon /> Continue with Google
             </button>
@@ -94,11 +114,12 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
               type="button"
               className="auth-provider auth-provider-apple"
               onClick={() => oauthLogin('apple')}
+              disabled={submitting}
             >
               <AppleIcon /> Continue with Apple
             </button>
           )}
-          {providers.length === 0 && (
+          {!GOOGLE_ENABLED && !providers.includes('apple') && (
             <p className="auth-providers-empty">
               Social sign-in isn't configured yet — use email below.
             </p>

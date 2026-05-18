@@ -65,6 +65,11 @@ export const api = {
     request<{ providers: OAuthProvider[] }>('/auth/providers').catch(
       () => ({ providers: [] as OAuthProvider[] })
     ),
+  googleToken: (accessToken: string) =>
+    request<TokenResponse>('/auth/google/token', {
+      method: 'POST',
+      body: { access_token: accessToken },
+    }),
 };
 
 export const oauthUrl = (provider: OAuthProvider): string =>

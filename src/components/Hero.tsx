@@ -11,8 +11,13 @@ export default function Hero() {
 
       <div className="container hero-inner">
         <span className="eyebrow">DigiPros Marketing</span>
-        <h1 className="hero-title">
-          Marketing that <span className="highlight">moves the needle.</span>
+        <h1
+          className="hero-title"
+          data-text="Marketing that moves the needle."
+        >
+          <span className="hero-title-text">
+            Marketing that <span className="highlight">moves the needle.</span>
+          </span>
         </h1>
         <p className="hero-sub">
           We help ambitious brands grow with sharp strategy, performance ads,

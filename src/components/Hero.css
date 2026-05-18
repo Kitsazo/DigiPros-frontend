@@ -16,6 +16,7 @@
   border-radius: 50%;
   filter: blur(90px);
   opacity: 0.22;
+  will-change: transform;
 }
 
 [data-theme='light'] .hero-bg .blob {
@@ -28,6 +29,7 @@
   background: var(--color-blue);
   top: -160px;
   left: -160px;
+  animation: hero-blob-blue-drift 18s ease-in-out infinite;
 }
 
 [data-theme='light'] .hero-bg .blob-blue {
@@ -40,10 +42,27 @@
   background: var(--color-yellow);
   top: 40px;
   right: -180px;
+  animation: hero-blob-yellow-drift 22s ease-in-out infinite;
 }
 
 [data-theme='light'] .hero-bg .blob-yellow {
   background: var(--color-yellow-soft);
+}
+
+@keyframes hero-blob-blue-drift {
+  0%   { transform: translate(0, 0)        scale(1); }
+  25%  { transform: translate(60px, 40px)  scale(1.08); }
+  50%  { transform: translate(20px, 80px)  scale(0.96); }
+  75%  { transform: translate(-30px, 30px) scale(1.04); }
+  100% { transform: translate(0, 0)        scale(1); }
+}
+
+@keyframes hero-blob-yellow-drift {
+  0%   { transform: translate(0, 0)         scale(1); }
+  25%  { transform: translate(-50px, 30px)  scale(0.95); }
+  50%  { transform: translate(-20px, 70px)  scale(1.07); }
+  75%  { transform: translate(40px, 20px)   scale(1.02); }
+  100% { transform: translate(0, 0)         scale(1); }
 }
 
 .hero-bg .grid {
@@ -83,10 +102,18 @@
 }
 
 .hero-title {
+  position: relative;
   font-size: clamp(40px, 7vw, 84px);
   font-weight: 800;
   max-width: 14ch;
   margin-top: 8px;
+  -webkit-text-stroke: 0.4px
+    color-mix(in srgb, var(--color-ink) 22%, transparent);
+}
+
+.hero-title-text {
+  position: relative;
+  z-index: 1;
 }
 
 .hero-title .highlight {
@@ -99,6 +126,56 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Animated sweeping stroke: a duplicate of the title rendered as
+   outline-only, revealed through a narrow horizontally-animated mask. */
+.hero-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  color: transparent;
+  -webkit-text-stroke: 0.9px var(--color-blue);
+  background: transparent;
+  -webkit-mask-image: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 38%,
+    #000 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 38%,
+    #000 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  -webkit-mask-size: 220% 100%;
+  mask-size: 220% 100%;
+  animation: hero-title-stroke-sweep 5.5s linear infinite;
+}
+
+@keyframes hero-title-stroke-sweep {
+  from {
+    -webkit-mask-position: 220% 0;
+    mask-position: 220% 0;
+  }
+  to {
+    -webkit-mask-position: -120% 0;
+    mask-position: -120% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg .blob,
+  .hero-title::after {
+    animation: none;
+  }
 }
 
 .hero-sub {
