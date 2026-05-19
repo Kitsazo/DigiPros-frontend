@@ -23,32 +23,53 @@ Frontend/
     │   ├── types.ts          # User, payloads, OAuthProvider
     │   ├── api.ts            # fetch wrapper + tokenStore
     │   └── AuthContext.tsx   # AuthProvider + useAuth()
+    ├── theme/
+    │   └── ThemeContext.tsx
+    ├── pages/
+    │   ├── Landing.tsx           # Hero + About + Services + Contact
+    │   ├── QuotePage.(tsx|css)   # /quote — quote request form
+    │   ├── Portal.(tsx|css)      # /portal layout + sidebar
+    │   ├── PortalOverview.tsx    # analytics dashboard
+    │   ├── PortalQuotes.tsx      # quote history
+    │   ├── PortalBusinesses.tsx  # manage businesses
+    │   └── PortalSettings.tsx    # theme + contact + active business
     └── components/
         ├── Navbar.(tsx|css)
         ├── Hero.(tsx|css)
         ├── About.(tsx|css)
-        ├── Packages.(tsx|css)
+        ├── Services.(tsx|css)    # service grid + "Get a quote" CTAs
         ├── Contact.(tsx|css)
         ├── Footer.(tsx|css)
-        ├── AuthModal.(tsx|css)
-        └── AuthCallback.tsx
+        ├── AuthModal.(tsx|css)   # 2-step signup that collects business info
+        ├── AuthCallback.tsx
+        └── ThemeToggle.(tsx|css)
 ```
 
 Each component owns its own CSS file. Color tokens (white / blue / yellow)
 live in `src/styles/global.css` under `:root` — change them in one place to
 re-skin the whole site.
 
+## Routes
+
+- `/` — marketing landing page
+- `/quote?service=<slug>` — quote-request form (signs visitors up if needed)
+- `/portal` — client portal dashboard with placeholder analytics
+- `/portal/quotes` — quote history
+- `/portal/businesses` — add / edit businesses tied to the account
+- `/portal/settings` — appearance, contact info, active business
+- `/auth/callback` — OAuth redirect target
+
 Auth lives under `src/auth/`:
-- `types.ts` — shared TypeScript types.
+- `types.ts` — shared TypeScript types (User, Business, Quote, Service…).
 - `api.ts` — typed `fetch` wrapper, `ApiError`, and `tokenStore`
   (localStorage).
 - `AuthContext.tsx` — `useAuth()` exposes `user`, `login`, `signup`,
-  `logout`, `oauthLogin('google'|'apple')`, and which providers the
-  backend has configured.
+  `logout`, `oauthLogin('google'|'apple')`, `updateProfile`, plus which
+  providers the backend has configured.
 
-`AuthModal.tsx` renders the email form + OAuth buttons. After an OAuth
-redirect the backend lands at `/auth/callback?token=…` which is handled
-by `AuthCallback.tsx`.
+`AuthModal.tsx` renders a 2-step signup (account → business) plus the
+OAuth buttons. After an OAuth redirect the backend lands at
+`/auth/callback?token=…`, handled by `AuthCallback.tsx`.
 
 ## Local development
 

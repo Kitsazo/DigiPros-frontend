@@ -204,3 +204,87 @@ main {
   border-color: var(--color-blue);
   color: var(--color-blue);
 }
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-md),
+    0 0 0 3px color-mix(in srgb, var(--color-blue) 35%, transparent);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+/* Page-level loader */
+
+.route-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 50vh;
+  color: var(--color-ink-soft);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.route-loader-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--color-cloud);
+  border-top-color: var(--color-blue);
+  animation: route-spin 0.8s linear infinite;
+}
+
+@keyframes route-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Sign-in wall */
+
+.route-auth-wall {
+  background: var(--color-snow);
+}
+
+.route-auth-wall-inner {
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 60px 24px;
+}
+
+.route-auth-wall h1 {
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 800;
+}
+
+.route-auth-wall p {
+  color: var(--color-ink-soft);
+  font-size: 16px;
+}
+
+.route-auth-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* Smooth in-page scroll offset for sticky navbar */
+:target {
+  scroll-margin-top: 100px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

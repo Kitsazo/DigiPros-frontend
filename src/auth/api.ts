@@ -1,9 +1,16 @@
 import type {
+  Analytics,
+  Business,
+  BusinessPayload,
   LoginPayload,
   OAuthProvider,
+  Quote,
+  QuotePayload,
+  Service,
   SignupPayload,
   TokenResponse,
   User,
+  UserUpdatePayload,
 } from './types';
 
 const API_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
@@ -43,6 +50,10 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
+  if (res.status === 204) {
+    return undefined as T;
+  }
+
   const data: unknown = await res.json().catch(() => ({}));
 
   if (!res.ok) {
@@ -60,7 +71,9 @@ export const api = {
     request<TokenResponse>('/auth/signup', { method: 'POST', body: payload }),
   login: (payload: LoginPayload) =>
     request<TokenResponse>('/auth/login', { method: 'POST', body: payload }),
-  me: (token: string) => request<User>('/auth/me', { token }),
+  me: (token: string) => request<User>('/users/me', { token }),
+  updateMe: (token: string, payload: UserUpdatePayload) =>
+    request<User>('/users/me', { method: 'PUT', body: payload, token }),
   providers: () =>
     request<{ providers: OAuthProvider[] }>('/auth/providers').catch(
       () => ({ providers: [] as OAuthProvider[] })
@@ -70,6 +83,29 @@ export const api = {
       method: 'POST',
       body: { access_token: accessToken },
     }),
+
+  listBusinesses: (token: string) =>
+    request<Business[]>('/businesses', { token }),
+  createBusiness: (token: string, payload: BusinessPayload) =>
+    request<Business>('/businesses', { method: 'POST', body: payload, token }),
+  updateBusiness: (token: string, id: number, payload: BusinessPayload) =>
+    request<Business>(`/businesses/${id}`, {
+      method: 'PUT',
+      body: payload,
+      token,
+    }),
+  deleteBusiness: (token: string, id: number) =>
+    request<void>(`/businesses/${id}`, { method: 'DELETE', token }),
+
+  listServices: () => request<Service[]>('/services'),
+  getService: (slug: string) => request<Service>(`/services/${slug}`),
+
+  createQuote: (token: string, payload: QuotePayload) =>
+    request<Quote>('/quotes', { method: 'POST', body: payload, token }),
+  listQuotes: (token: string) => request<Quote[]>('/quotes', { token }),
+
+  analytics: (token: string) =>
+    request<Analytics>('/analytics/me', { token }),
 };
 
 export const oauthUrl = (provider: OAuthProvider): string =>

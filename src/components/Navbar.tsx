@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import './Navbar.css';
 
 interface NavbarProps {
-  onOpenAuth: () => void;
+  onOpenAuth: (mode?: 'login' | 'signup') => void;
 }
 
-const links: { href: string; label: string }[] = [
-  { href: '#about', label: 'About' },
-  { href: '#packages', label: 'Packages' },
-  { href: '#contact', label: 'Contact' },
+const sectionLinks: { hash: string; label: string }[] = [
+  { hash: '#about', label: 'About' },
+  { hash: '#services', label: 'Services' },
+  { hash: '#contact', label: 'Contact' },
 ];
 
 export default function Navbar({ onOpenAuth }: NavbarProps) {
   const { user, logout, loading } = useAuth();
   const [scrolled, setScrolled] = useState<boolean>(false);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -23,10 +26,16 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  const onLanding = pathname === '/';
+
   return (
     <header className={`navbar ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="container navbar-inner">
-        <a href="#top" className="navbar-brand" aria-label="DigiPros Marketing home">
+        <Link to="/" className="navbar-brand" aria-label="DigiPros Marketing home">
           <span className="navbar-logo" aria-hidden="true">
             <svg viewBox="0 0 64 64" width="28" height="28">
               <rect width="64" height="64" rx="14" fill="var(--color-blue)" />
@@ -44,14 +53,29 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           <span className="navbar-wordmark">
             DigiPros<span className="accent">.</span>
           </span>
-        </a>
+        </Link>
 
-        <nav className="navbar-links" aria-label="Primary">
-          {links.map((l) => (
-            <a key={l.href} href={l.href}>
-              {l.label}
-            </a>
-          ))}
+        <nav
+          className={`navbar-links ${menuOpen ? 'is-open' : ''}`}
+          aria-label="Primary"
+        >
+          {sectionLinks.map((l) =>
+            onLanding ? (
+              <a key={l.hash} href={l.hash}>{l.label}</a>
+            ) : (
+              <Link key={l.hash} to={`/${l.hash}`}>{l.label}</Link>
+            ),
+          )}
+          {user && (
+            <NavLink
+              to="/portal"
+              className={({ isActive }) =>
+                isActive ? 'navbar-portal-link is-active' : 'navbar-portal-link'
+              }
+            >
+              Portal
+            </NavLink>
+          )}
         </nav>
 
         <div className="navbar-actions">
@@ -59,23 +83,45 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
             <span className="navbar-loading" aria-hidden="true" />
           ) : user ? (
             <>
-              <span className="navbar-user" title={user.email}>
-                {user.name || user.email.split('@')[0]}
-              </span>
+              <Link to="/portal" className="navbar-user-pill">
+                <span className="navbar-user-dot" aria-hidden="true">
+                  {(user.name || user.email)[0]?.toUpperCase()}
+                </span>
+                <span className="navbar-user">
+                  {user.name || user.email.split('@')[0]}
+                </span>
+              </Link>
               <button className="btn btn-ghost navbar-cta" onClick={logout}>
                 Log out
               </button>
             </>
           ) : (
             <>
-              <button className="navbar-link-btn" onClick={onOpenAuth}>
+              <button
+                className="navbar-link-btn"
+                onClick={() => onOpenAuth('login')}
+              >
                 Log in
               </button>
-              <button className="btn btn-primary navbar-cta" onClick={onOpenAuth}>
+              <button
+                className="btn btn-primary navbar-cta"
+                onClick={() => onOpenAuth('signup')}
+              >
                 Sign up
               </button>
             </>
           )}
+          <button
+            type="button"
+            className={`navbar-burger ${menuOpen ? 'is-open' : ''}`}
+            aria-label="Toggle navigation"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
       </div>
     </header>

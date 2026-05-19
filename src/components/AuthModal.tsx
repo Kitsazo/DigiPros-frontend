@@ -1,6 +1,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../auth/AuthContext';
+import type { BusinessSignupInfo } from '../auth/types';
 import './AuthModal.css';
 
 const GOOGLE_ENABLED = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
@@ -8,25 +9,76 @@ const GOOGLE_ENABLED = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
+  defaultMode?: Mode;
 }
 
 type Mode = 'login' | 'signup';
+type SignupStep = 'account' | 'business';
 
 const tabs: { id: Mode; label: string }[] = [
   { id: 'login', label: 'Log in' },
   { id: 'signup', label: 'Sign up' },
 ];
 
-interface FormState {
+const BUSINESS_SIZES = [
+  'Solo founder',
+  '2 – 10 employees',
+  '11 – 50 employees',
+  '51 – 200 employees',
+  '201 – 1,000 employees',
+  '1,000+ employees',
+];
+
+interface AccountForm {
   email: string;
   password: string;
   name: string;
+  phone: string;
 }
 
-export default function AuthModal({ open, onClose }: AuthModalProps) {
+interface BusinessForm {
+  name: string;
+  industry: string;
+  size: string;
+  employee_count: string;
+  yearly_revenue: string;
+  website: string;
+  phone: string;
+}
+
+const EMPTY_ACCOUNT: AccountForm = { email: '', password: '', name: '', phone: '' };
+const EMPTY_BUSINESS: BusinessForm = {
+  name: '',
+  industry: '',
+  size: '',
+  employee_count: '',
+  yearly_revenue: '',
+  website: '',
+  phone: '',
+};
+
+function toBusinessPayload(b: BusinessForm): BusinessSignupInfo {
+  return {
+    name: b.name.trim(),
+    industry: b.industry.trim() || null,
+    size: b.size || null,
+    employee_count: b.employee_count ? Number(b.employee_count) : null,
+    yearly_revenue: b.yearly_revenue ? Number(b.yearly_revenue) : null,
+    website: b.website.trim() || null,
+    phone: b.phone.trim() || null,
+  };
+}
+
+export default function AuthModal({
+  open,
+  onClose,
+  defaultMode = 'login',
+}: AuthModalProps) {
   const { login, signup, loginWithGoogle, oauthLogin, providers } = useAuth();
-  const [mode, setMode] = useState<Mode>('login');
-  const [form, setForm] = useState<FormState>({ email: '', password: '', name: '' });
+  const [mode, setMode] = useState<Mode>(defaultMode);
+  const [step, setStep] = useState<SignupStep>('account');
+  const [account, setAccount] = useState<AccountForm>(EMPTY_ACCOUNT);
+  const [business, setBusiness] = useState<BusinessForm>(EMPTY_BUSINESS);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -57,29 +109,50 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
 
   useEffect(() => {
     setError(null);
-  }, [mode]);
+    setStep('account');
+  }, [mode, open]);
+
+  useEffect(() => {
+    if (open) setMode(defaultMode);
+  }, [open, defaultMode]);
 
   if (!open) return null;
 
-  const onChange =
-    (k: keyof FormState) =>
-    (e: ChangeEvent<HTMLInputElement>) =>
-      setForm((f) => ({ ...f, [k]: e.target.value }));
+  const onAccountChange =
+    (k: keyof AccountForm) => (e: ChangeEvent<HTMLInputElement>) =>
+      setAccount((f) => ({ ...f, [k]: e.target.value }));
 
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const onBusinessChange =
+    (k: keyof BusinessForm) =>
+    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setBusiness((f) => ({ ...f, [k]: e.target.value }));
+
+  const goToBusinessStep = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    if (account.password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+    setStep('business');
+  };
+
+  const submitSignup = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!business.name.trim()) {
+      setError('Tell us your business name so we can tailor your account.');
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
-      if (mode === 'signup') {
-        await signup({
-          email: form.email,
-          password: form.password,
-          name: form.name || null,
-        });
-      } else {
-        await login({ email: form.email, password: form.password });
-      }
+      await signup({
+        email: account.email,
+        password: account.password,
+        name: account.name || null,
+        phone: account.phone || null,
+        business: toBusinessPayload(business),
+      });
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -88,104 +161,293 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
     }
   };
 
+  const submitLogin = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    try {
+      await login({ email: account.email, password: account.password });
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const goBackToAccount = () => {
+    setStep('account');
+    setError(null);
+  };
+
   return (
     <div className="auth-overlay" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="auth-card" onClick={(e) => e.stopPropagation()}>
         <button className="auth-close" onClick={onClose} aria-label="Close">×</button>
 
         <h2 className="auth-title">
-          {mode === 'signup' ? 'Create your account' : 'Welcome back'}
+          {mode === 'signup'
+            ? step === 'business'
+              ? 'Tell us about your business'
+              : 'Create your account'
+            : 'Welcome back'}
         </h2>
-        <p className="auth-sub">Access proposals, reports, and your DigiPros dashboard.</p>
+        <p className="auth-sub">
+          {mode === 'signup' && step === 'business'
+            ? "We'll use this to scope quotes, dashboards, and reports to your business."
+            : 'Access proposals, reports, and your DigiPros client portal.'}
+        </p>
 
-        <div className="auth-providers">
-          {GOOGLE_ENABLED && (
-            <button
-              type="button"
-              className="auth-provider"
-              onClick={() => googleSignIn()}
-              disabled={submitting}
+        {!(mode === 'signup' && step === 'business') && (
+          <>
+            <div className="auth-providers">
+              {GOOGLE_ENABLED && (
+                <button
+                  type="button"
+                  className="auth-provider"
+                  onClick={() => googleSignIn()}
+                  disabled={submitting}
+                >
+                  <GoogleIcon /> Continue with Google
+                </button>
+              )}
+              {providers.includes('apple') && (
+                <button
+                  type="button"
+                  className="auth-provider auth-provider-apple"
+                  onClick={() => oauthLogin('apple')}
+                  disabled={submitting}
+                >
+                  <AppleIcon /> Continue with Apple
+                </button>
+              )}
+              {!GOOGLE_ENABLED && !providers.includes('apple') && (
+                <p className="auth-providers-empty">
+                  Social sign-in isn't configured yet — use email below.
+                </p>
+              )}
+            </div>
+
+            <div className="auth-divider"><span>or</span></div>
+
+            <div className="auth-tabs" role="tablist">
+              {tabs.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === t.id}
+                  className={`auth-tab ${mode === t.id ? 'is-active' : ''}`}
+                  onClick={() => setMode(t.id)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {mode === 'signup' && (
+          <div className="auth-stepper" role="list" aria-label="Signup progress">
+            <span
+              className={`auth-step ${step === 'account' ? 'is-active' : 'is-complete'}`}
             >
-              <GoogleIcon /> Continue with Google
-            </button>
-          )}
-          {providers.includes('apple') && (
-            <button
-              type="button"
-              className="auth-provider auth-provider-apple"
-              onClick={() => oauthLogin('apple')}
-              disabled={submitting}
+              <span className="auth-step-num">1</span> Account
+            </span>
+            <span className="auth-step-line" aria-hidden="true" />
+            <span
+              className={`auth-step ${step === 'business' ? 'is-active' : ''}`}
             >
-              <AppleIcon /> Continue with Apple
-            </button>
-          )}
-          {!GOOGLE_ENABLED && !providers.includes('apple') && (
-            <p className="auth-providers-empty">
-              Social sign-in isn't configured yet — use email below.
-            </p>
-          )}
-        </div>
+              <span className="auth-step-num">2</span> Business
+            </span>
+          </div>
+        )}
 
-        <div className="auth-divider"><span>or</span></div>
-
-        <div className="auth-tabs" role="tablist">
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              role="tab"
-              aria-selected={mode === t.id}
-              className={`auth-tab ${mode === t.id ? 'is-active' : ''}`}
-              onClick={() => setMode(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        <form className="auth-form" onSubmit={onSubmit}>
-          {mode === 'signup' && (
+        {mode === 'login' && (
+          <form className="auth-form" onSubmit={submitLogin}>
             <label>
-              <span>Name (optional)</span>
+              <span>Email</span>
               <input
-                type="text"
-                autoComplete="name"
-                value={form.name}
-                onChange={onChange('name')}
+                type="email"
+                required
+                autoComplete="email"
+                value={account.email}
+                onChange={onAccountChange('email')}
               />
             </label>
-          )}
-          <label>
-            <span>Email</span>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={form.email}
-              onChange={onChange('email')}
-            />
-          </label>
-          <label>
-            <span>Password</span>
-            <input
-              type="password"
-              required
-              minLength={8}
-              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-              value={form.password}
-              onChange={onChange('password')}
-            />
-          </label>
+            <label>
+              <span>Password</span>
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={account.password}
+                onChange={onAccountChange('password')}
+              />
+            </label>
+            {error && <p className="auth-error">{error}</p>}
+            <button
+              type="submit"
+              className="btn btn-primary auth-submit"
+              disabled={submitting}
+            >
+              {submitting ? 'Please wait…' : 'Log in'}
+            </button>
+          </form>
+        )}
 
-          {error && <p className="auth-error">{error}</p>}
+        {mode === 'signup' && step === 'account' && (
+          <form className="auth-form" onSubmit={goToBusinessStep}>
+            <label>
+              <span>Full name</span>
+              <input
+                type="text"
+                required
+                autoComplete="name"
+                value={account.name}
+                onChange={onAccountChange('name')}
+              />
+            </label>
+            <label>
+              <span>Work email</span>
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={account.email}
+                onChange={onAccountChange('email')}
+              />
+            </label>
+            <label>
+              <span>Phone <span className="auth-opt">(optional)</span></span>
+              <input
+                type="tel"
+                autoComplete="tel"
+                value={account.phone}
+                onChange={onAccountChange('phone')}
+              />
+            </label>
+            <label>
+              <span>Password</span>
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={account.password}
+                onChange={onAccountChange('password')}
+              />
+            </label>
+            {error && <p className="auth-error">{error}</p>}
+            <button
+              type="submit"
+              className="btn btn-primary auth-submit"
+              disabled={submitting}
+            >
+              Continue
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14" />
+                <path d="M13 5l7 7-7 7" />
+              </svg>
+            </button>
+          </form>
+        )}
 
-          <button type="submit" className="btn btn-primary auth-submit" disabled={submitting}>
-            {submitting
-              ? 'Please wait…'
-              : mode === 'signup'
-                ? 'Create account'
-                : 'Log in'}
-          </button>
-        </form>
+        {mode === 'signup' && step === 'business' && (
+          <form className="auth-form" onSubmit={submitSignup}>
+            <label>
+              <span>Business name</span>
+              <input
+                type="text"
+                required
+                value={business.name}
+                onChange={onBusinessChange('name')}
+              />
+            </label>
+            <div className="auth-row">
+              <label>
+                <span>Industry</span>
+                <input
+                  type="text"
+                  placeholder="e.g. SaaS, e-commerce, agency"
+                  value={business.industry}
+                  onChange={onBusinessChange('industry')}
+                />
+              </label>
+              <label>
+                <span>Company size</span>
+                <select
+                  value={business.size}
+                  onChange={onBusinessChange('size')}
+                >
+                  <option value="">Select…</option>
+                  {BUSINESS_SIZES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="auth-row">
+              <label>
+                <span>Employees</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={business.employee_count}
+                  onChange={onBusinessChange('employee_count')}
+                />
+              </label>
+              <label>
+                <span>Yearly revenue (USD)</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={business.yearly_revenue}
+                  onChange={onBusinessChange('yearly_revenue')}
+                />
+              </label>
+            </div>
+            <label>
+              <span>Website <span className="auth-opt">(optional)</span></span>
+              <input
+                type="url"
+                placeholder="https://"
+                value={business.website}
+                onChange={onBusinessChange('website')}
+              />
+            </label>
+
+            {error && <p className="auth-error">{error}</p>}
+
+            <div className="auth-actions">
+              <button
+                type="button"
+                className="btn btn-ghost auth-back"
+                onClick={goBackToAccount}
+                disabled={submitting}
+              >
+                ← Back
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary auth-submit auth-submit-inline"
+                disabled={submitting}
+              >
+                {submitting ? 'Creating account…' : 'Create account'}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -205,7 +467,7 @@ function GoogleIcon() {
 function AppleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
-      <path d="M16.36 12.83c.02-2.42 1.98-3.58 2.07-3.64-1.13-1.66-2.89-1.88-3.51-1.91-1.49-.15-2.92.88-3.68.88-.76 0-1.94-.86-3.19-.84-1.64.02-3.16.96-4.01 2.43-1.72 2.98-.44 7.39 1.23 9.81.82 1.18 1.79 2.51 3.06 2.46 1.23-.05 1.69-.79 3.18-.79 1.48 0 1.9.79 3.19.77 1.32-.02 2.16-1.19 2.97-2.38.93-1.36 1.31-2.69 1.33-2.76-.03-.01-2.56-.98-2.58-3.89zM13.78 5.69c.67-.81 1.13-1.95.99-3.07-.96.04-2.13.64-2.83 1.45-.62.72-1.17 1.86-1.02 2.96 1.07.08 2.18-.54 2.86-1.34z"/>
+      <path d="M16.36 12.83c.02-2.42 1.98-3.58 2.07-3.64-1.13-1.66-2.89-1.88-3.51-1.91-1.49-.15-2.92.88-3.68.88-.76 0-1.94-.86-3.19-.84-1.64.02-3.16.96-4.01 2.43-1.72 2.98-.44 7.39 1.23 9.81.82 1.18 1.79 2.51 3.06 2.46 1.23-.05 1.69-.79 3.18-.79 1.48 0 1.9.79 3.19.77 1.32-.02 2.16-1.19 2.97-2.38.93-1.36 1.31-2.69 1.33-2.76-.03-.01-2.56-.98-2.58-3.89z"/>
     </svg>
   );
 }

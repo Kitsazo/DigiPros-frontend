@@ -2,6 +2,10 @@ export interface User {
   id: number;
   email: string;
   name: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  theme: 'light' | 'dark';
+  active_business_id: number | null;
   created_at: string;
 }
 
@@ -10,15 +14,129 @@ export interface TokenResponse {
   token_type: string;
 }
 
+export interface BusinessSignupInfo {
+  name: string;
+  industry?: string | null;
+  size?: string | null;
+  employee_count?: number | null;
+  yearly_revenue?: number | null;
+  website?: string | null;
+  phone?: string | null;
+}
+
 export interface SignupPayload {
   email: string;
   password: string;
   name?: string | null;
+  phone?: string | null;
+  business?: BusinessSignupInfo | null;
 }
 
 export interface LoginPayload {
   email: string;
   password: string;
+}
+
+export interface UserUpdatePayload {
+  name?: string | null;
+  phone?: string | null;
+  avatar_url?: string | null;
+  theme?: 'light' | 'dark';
+  active_business_id?: number | null;
+}
+
+export interface Business {
+  id: number;
+  user_id: number;
+  name: string;
+  industry: string | null;
+  size: string | null;
+  employee_count: number | null;
+  yearly_revenue: number | null;
+  website: string | null;
+  phone: string | null;
+  address_line1: string | null;
+  city: string | null;
+  state: string | null;
+  postal_code: string | null;
+  country: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface BusinessPayload {
+  name: string;
+  industry?: string | null;
+  size?: string | null;
+  employee_count?: number | null;
+  yearly_revenue?: number | null;
+  website?: string | null;
+  phone?: string | null;
+  address_line1?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+  notes?: string | null;
+}
+
+export interface Service {
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  starts_at: string;
+  deliverables: string[];
+  icon: string;
+}
+
+export interface QuotePayload {
+  service_slug: string;
+  service_name: string;
+
+  contact_name: string;
+  contact_email: string;
+  contact_phone?: string | null;
+
+  business_name: string;
+  industry?: string | null;
+  business_size?: string | null;
+  employee_count?: number | null;
+  yearly_revenue?: number | null;
+
+  monthly_budget?: string | null;
+  timeline?: string | null;
+  goals?: string | null;
+  notes?: string | null;
+  referral_source?: string | null;
+
+  business_id?: number | null;
+}
+
+export interface Quote extends QuotePayload {
+  id: number;
+  user_id: number;
+  business_id: number | null;
+  status: string;
+  created_at: string;
+}
+
+export interface AnalyticsPoint {
+  label: string;
+  spent: number;
+  returned: number;
+}
+
+export interface Analytics {
+  total_spent: number;
+  total_returned: number;
+  roas: number;
+  active_campaigns: number;
+  leads_this_month: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  history: AnalyticsPoint[];
 }
 
 export type OAuthProvider = 'google' | 'apple';

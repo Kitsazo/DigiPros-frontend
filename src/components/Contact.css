@@ -85,6 +85,27 @@
   transform: translateY(-2px);
 }
 
+.contact-chip-primary {
+  background: var(--color-yellow);
+  border-color: var(--color-yellow);
+  color: var(--color-on-accent);
+}
+
+.contact-chip-primary:hover {
+  background: #fde047;
+  border-color: #fde047;
+  color: var(--color-on-accent);
+}
+
+.contact-chip-primary .contact-chip-icon {
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--color-on-accent);
+}
+
+.contact-chip-primary .contact-chip-text span {
+  color: rgba(11, 23, 54, 0.7);
+}
+
 .contact-chip-icon {
   width: 40px;
   height: 40px;

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import './Contact.css';
 
 interface Channel {
@@ -62,6 +63,18 @@ export default function Contact() {
           </div>
 
           <div className="contact-actions">
+            <Link to="/quote" className="contact-chip contact-chip-primary">
+              <span className="contact-chip-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 17l5-5 4 4 8-9" />
+                  <path d="M14 7h6v6" />
+                </svg>
+              </span>
+              <span className="contact-chip-text">
+                <strong>Get a quote</strong>
+                <span>Custom proposal in 2 days</span>
+              </span>
+            </Link>
             {channels.map((c) => (
               <a key={c.label} href={c.href} className="contact-chip">
                 <span className="contact-chip-icon">{c.icon}</span>

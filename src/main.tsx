@@ -1,6 +1,7 @@
 import { StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './auth/AuthContext';
 import { ThemeProvider } from './theme/ThemeContext';
@@ -23,11 +24,13 @@ if (!rootEl) {
 createRoot(rootEl).render(
   <StrictMode>
     {withGoogle(
-      <ThemeProvider>
+      <BrowserRouter>
         <AuthProvider>
-          <App />
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
         </AuthProvider>
-      </ThemeProvider>,
+      </BrowserRouter>,
     )}
   </StrictMode>,
 );

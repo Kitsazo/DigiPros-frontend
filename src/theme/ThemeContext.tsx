@@ -3,15 +3,17 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
+import { useAuth } from '../auth/AuthContext';
 
 export type Theme = 'light' | 'dark';
 
 interface ThemeContextValue {
   theme: Theme;
-  setTheme: (next: Theme) => void;
+  setTheme: (next: Theme, options?: { persistRemote?: boolean }) => void;
   toggleTheme: () => void;
 }
 
@@ -25,7 +27,7 @@ function readInitialTheme(): Theme {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored === 'light' || stored === 'dark') return stored;
   } catch {
-    // ignore (e.g. private mode)
+    /* private mode etc. */
   }
   return 'dark';
 }
@@ -40,23 +42,48 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(readInitialTheme);
+  const { user, token, updateProfile } = useAuth();
+  const hydratedFromUser = useRef<boolean>(false);
 
   useEffect(() => {
     applyTheme(theme);
     try {
       window.localStorage.setItem(STORAGE_KEY, theme);
     } catch {
-      // ignore
+      /* ignore */
     }
   }, [theme]);
 
-  const setTheme = useCallback((next: Theme) => {
-    setThemeState(next);
-  }, []);
+  useEffect(() => {
+    if (!user) {
+      hydratedFromUser.current = false;
+      return;
+    }
+    if (!hydratedFromUser.current && user.theme) {
+      setThemeState(user.theme);
+      hydratedFromUser.current = true;
+    }
+  }, [user]);
+
+  const setTheme = useCallback(
+    (next: Theme, options?: { persistRemote?: boolean }) => {
+      setThemeState(next);
+      if (options?.persistRemote && token && user) {
+        updateProfile({ theme: next }).catch(() => {
+          /* swallow — local state already updated */
+        });
+      }
+    },
+    [token, user, updateProfile],
+  );
 
   const toggleTheme = useCallback(() => {
-    setThemeState((t) => (t === 'dark' ? 'light' : 'dark'));
-  }, []);
+    const next: Theme = theme === 'dark' ? 'light' : 'dark';
+    setThemeState(next);
+    if (token && user) {
+      updateProfile({ theme: next }).catch(() => undefined);
+    }
+  }, [theme, token, user, updateProfile]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>

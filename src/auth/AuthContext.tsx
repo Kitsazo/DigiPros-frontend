@@ -12,6 +12,7 @@ import type {
   OAuthProvider,
   SignupPayload,
   User,
+  UserUpdatePayload,
 } from './types';
 
 interface AuthContextValue {
@@ -25,6 +26,8 @@ interface AuthContextValue {
   logout: () => void;
   oauthLogin: (provider: OAuthProvider) => void;
   applyToken: (token: string | null) => void;
+  updateProfile: (payload: UserUpdatePayload) => Promise<User>;
+  refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -52,29 +55,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     api.providers().then((p) => setProviders(p.providers ?? []));
   }, []);
 
+  const loadMe = useCallback(
+    async (activeToken: string) => {
+      try {
+        const u = await api.me(activeToken);
+        setUser(u);
+      } catch {
+        applyToken(null);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [applyToken],
+  );
+
   useEffect(() => {
     if (!token) {
       setUser(null);
       setLoading(false);
       return;
     }
-    let alive = true;
     setLoading(true);
-    api
-      .me(token)
-      .then((u) => {
-        if (alive) setUser(u);
-      })
-      .catch(() => {
-        if (alive) applyToken(null);
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, [token, applyToken]);
+    loadMe(token);
+  }, [token, loadMe]);
 
   const signup = async (payload: SignupPayload) => {
     const { access_token } = await api.signup(payload);
@@ -97,6 +100,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     window.location.href = oauthUrl(provider);
   };
 
+  const updateProfile = async (payload: UserUpdatePayload): Promise<User> => {
+    if (!token) throw new Error('Not authenticated');
+    const updated = await api.updateMe(token, payload);
+    setUser(updated);
+    return updated;
+  };
+
+  const refresh = async () => {
+    if (!token) return;
+    await loadMe(token);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -110,6 +125,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logout,
         oauthLogin,
         applyToken,
+        updateProfile,
+        refresh,
       }}
     >
       {children}
