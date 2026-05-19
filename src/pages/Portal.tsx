@@ -1,13 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../auth/api';
-import type { Analytics, Business, Quote } from '../auth/types';
+import type { Analytics, Quote } from '../auth/types';
 import './Portal.css';
 
 interface PortalContextLike {
-  businesses: Business[];
-  reloadBusinesses: () => Promise<void>;
   analytics: Analytics | null;
   quotes: Quote[];
   reloadQuotes: () => Promise<void>;
@@ -18,16 +16,9 @@ export default function PortalLayout() {
   const { user, token, logout } = useAuth();
   const { pathname } = useLocation();
 
-  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
-  const reloadBusinesses = async () => {
-    if (!token) return;
-    const list = await api.listBusinesses(token);
-    setBusinesses(list);
-  };
 
   const reloadQuotes = async () => {
     if (!token) return;
@@ -39,14 +30,9 @@ export default function PortalLayout() {
     if (!token) return;
     let alive = true;
     setLoading(true);
-    Promise.all([
-      api.listBusinesses(token),
-      api.analytics(token),
-      api.listQuotes(token),
-    ])
-      .then(([b, a, q]) => {
+    Promise.all([api.analytics(token), api.listQuotes(token)])
+      .then(([a, q]) => {
         if (!alive) return;
-        setBusinesses(b);
         setAnalytics(a);
         setQuotes(q);
       })
@@ -58,11 +44,6 @@ export default function PortalLayout() {
       alive = false;
     };
   }, [token]);
-
-  const activeBusiness = useMemo<Business | null>(() => {
-    if (!user?.active_business_id) return businesses[0] ?? null;
-    return businesses.find((b) => b.id === user.active_business_id) ?? null;
-  }, [businesses, user?.active_business_id]);
 
   if (!user) {
     return (
@@ -76,13 +57,13 @@ export default function PortalLayout() {
   }
 
   const ctx: PortalContextLike = {
-    businesses,
-    reloadBusinesses,
     analytics,
     quotes,
     reloadQuotes,
     loading,
   };
+
+  const initial = user.company_name?.[0]?.toUpperCase() ?? 'D';
 
   return (
     <section className="portal section">
@@ -90,17 +71,19 @@ export default function PortalLayout() {
         <aside className="portal-side">
           <div className="portal-side-head">
             <div className="portal-avatar" aria-hidden="true">
-              {(user.name || user.email)[0]?.toUpperCase()}
+              {initial}
             </div>
             <div className="portal-side-id">
-              <strong>{user.name || user.email.split('@')[0]}</strong>
-              <span>{activeBusiness?.name ?? 'No business yet'}</span>
+              <strong>{user.company_name}</strong>
+              <span>
+                {user.contact_name ? `${user.contact_name} · ` : ''}
+                {user.email}
+              </span>
             </div>
           </div>
           <nav className="portal-nav" aria-label="Portal">
             <PortalLink to="/portal" label="Overview" icon="grid" end />
             <PortalLink to="/portal/quotes" label="Quotes" icon="quote" />
-            <PortalLink to="/portal/businesses" label="Businesses" icon="briefcase" />
             <PortalLink to="/portal/settings" label="Settings" icon="settings" />
           </nav>
           <button
@@ -125,7 +108,7 @@ export default function PortalLayout() {
 interface PortalLinkProps {
   to: string;
   label: string;
-  icon: 'grid' | 'quote' | 'briefcase' | 'settings';
+  icon: 'grid' | 'quote' | 'settings';
   end?: boolean;
 }
 
@@ -145,7 +128,7 @@ function PortalLink({ to, label, icon, end }: PortalLinkProps) {
 }
 
 interface NavIconProps {
-  icon: 'grid' | 'quote' | 'briefcase' | 'settings';
+  icon: 'grid' | 'quote' | 'settings';
 }
 
 function NavIcon({ icon }: NavIconProps) {
@@ -175,13 +158,6 @@ function NavIcon({ icon }: NavIconProps) {
           <path d="M4 7h16" />
           <path d="M4 12h10" />
           <path d="M4 17h16" />
-        </svg>
-      );
-    case 'briefcase':
-      return (
-        <svg {...common} aria-hidden="true">
-          <rect x="3" y="7" width="18" height="13" rx="2" />
-          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
         </svg>
       );
     case 'settings':

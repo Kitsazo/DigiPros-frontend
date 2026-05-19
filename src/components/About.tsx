@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Reveal from './Reveal';
 import './About.css';
 
 interface Feature {
@@ -45,8 +46,13 @@ const features: Feature[] = [
 export default function About() {
   return (
     <section id="about" className="about section">
+      <div className="about-bg" aria-hidden="true">
+        <span className="about-orb about-orb-1" />
+        <span className="about-orb about-orb-2" />
+      </div>
+
       <div className="container about-inner">
-        <div className="about-head">
+        <Reveal className="about-head">
           <span className="eyebrow">Why DigiPros</span>
           <h2 className="about-title">
             A small team, obsessed with your <em>numbers</em>.
@@ -55,17 +61,24 @@ export default function About() {
             We blend strategy, design, and analytics into one tight loop — so
             your marketing actually compounds month over month.
           </p>
-        </div>
+        </Reveal>
 
         <ul className="about-grid">
-          {features.map((f) => (
-            <li key={f.title} className="about-card">
+          {features.map((f, i) => (
+            <Reveal
+              key={f.title}
+              as="li"
+              direction="up"
+              delay={i * 100}
+              className="about-card"
+            >
+              <span className="about-card-glow" aria-hidden="true" />
               <span className="about-card-icon" aria-hidden="true">
                 {f.icon}
               </span>
               <h3>{f.title}</h3>
               <p>{f.body}</p>
-            </li>
+            </Reveal>
           ))}
         </ul>
       </div>

@@ -1,8 +1,45 @@
 .about {
+  position: relative;
   background: var(--color-snow);
+  overflow: hidden;
+}
+
+.about-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.about-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.2;
+}
+
+[data-theme='light'] .about-orb {
+  opacity: 0.4;
+}
+
+.about-orb-1 {
+  width: 360px;
+  height: 360px;
+  background: var(--color-blue);
+  top: -120px;
+  left: -120px;
+}
+
+.about-orb-2 {
+  width: 320px;
+  height: 320px;
+  background: var(--color-yellow);
+  bottom: -120px;
+  right: -120px;
 }
 
 .about-inner {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 48px;
@@ -55,6 +92,7 @@
 }
 
 .about-card {
+  position: relative;
   background: var(--color-elevated);
   border: 1px solid var(--color-cloud);
   border-radius: var(--radius-lg);
@@ -62,14 +100,44 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease,
     border-color 0.2s ease;
 }
 
+.about-card-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-blue) 40%, transparent) 0%,
+    transparent 50%,
+    color-mix(in srgb, var(--color-yellow) 30%, transparent) 100%
+  );
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
 .about-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-blue-light);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-blue);
+}
+
+.about-card:hover .about-card-glow {
+  opacity: 0.6;
+}
+
+.about-card-icon {
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+
+.about-card:hover .about-card-icon {
+  transform: rotate(-6deg) scale(1.08);
+  background: var(--color-blue);
+  color: var(--color-on-brand);
 }
 
 .about-card-icon {

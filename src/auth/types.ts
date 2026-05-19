@@ -1,11 +1,26 @@
 export interface User {
   id: number;
   email: string;
-  name: string | null;
+
+  contact_name: string | null;
   phone: string | null;
   avatar_url: string | null;
   theme: 'light' | 'dark';
-  active_business_id: number | null;
+
+  company_name: string;
+  industry: string | null;
+  company_size: string | null;
+  employee_count: number | null;
+  yearly_revenue: number | null;
+  website: string | null;
+  business_phone: string | null;
+  address_line1: string | null;
+  city: string | null;
+  state: string | null;
+  postal_code: string | null;
+  country: string | null;
+  notes: string | null;
+
   created_at: string;
 }
 
@@ -14,22 +29,19 @@ export interface TokenResponse {
   token_type: string;
 }
 
-export interface BusinessSignupInfo {
-  name: string;
-  industry?: string | null;
-  size?: string | null;
-  employee_count?: number | null;
-  yearly_revenue?: number | null;
-  website?: string | null;
-  phone?: string | null;
-}
-
 export interface SignupPayload {
   email: string;
   password: string;
-  name?: string | null;
+  contact_name?: string | null;
   phone?: string | null;
-  business?: BusinessSignupInfo | null;
+
+  company_name: string;
+  industry?: string | null;
+  company_size?: string | null;
+  employee_count?: number | null;
+  yearly_revenue?: number | null;
+  website?: string | null;
+  business_phone?: string | null;
 }
 
 export interface LoginPayload {
@@ -38,40 +50,18 @@ export interface LoginPayload {
 }
 
 export interface UserUpdatePayload {
-  name?: string | null;
+  contact_name?: string | null;
   phone?: string | null;
   avatar_url?: string | null;
   theme?: 'light' | 'dark';
-  active_business_id?: number | null;
-}
 
-export interface Business {
-  id: number;
-  user_id: number;
-  name: string;
-  industry: string | null;
-  size: string | null;
-  employee_count: number | null;
-  yearly_revenue: number | null;
-  website: string | null;
-  phone: string | null;
-  address_line1: string | null;
-  city: string | null;
-  state: string | null;
-  postal_code: string | null;
-  country: string | null;
-  notes: string | null;
-  created_at: string;
-}
-
-export interface BusinessPayload {
-  name: string;
+  company_name?: string;
   industry?: string | null;
-  size?: string | null;
+  company_size?: string | null;
   employee_count?: number | null;
   yearly_revenue?: number | null;
   website?: string | null;
-  phone?: string | null;
+  business_phone?: string | null;
   address_line1?: string | null;
   city?: string | null;
   state?: string | null;
@@ -98,9 +88,9 @@ export interface QuotePayload {
   contact_email: string;
   contact_phone?: string | null;
 
-  business_name: string;
+  company_name: string;
   industry?: string | null;
-  business_size?: string | null;
+  company_size?: string | null;
   employee_count?: number | null;
   yearly_revenue?: number | null;
 
@@ -109,14 +99,11 @@ export interface QuotePayload {
   goals?: string | null;
   notes?: string | null;
   referral_source?: string | null;
-
-  business_id?: number | null;
 }
 
 export interface Quote extends QuotePayload {
   id: number;
   user_id: number;
-  business_id: number | null;
   status: string;
   created_at: string;
 }

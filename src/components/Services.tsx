@@ -1,229 +1,201 @@
-import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../auth/api';
+import Reveal from './Reveal';
+import { useTilt } from '../hooks/useTilt';
 import type { Service } from '../auth/types';
 import './Services.css';
 
-const FALLBACK_SERVICES: Service[] = [
+const OFFERINGS: { name: string; tagline: string; icon: string }[] = [
   {
-    slug: 'brand-strategy',
-    name: 'Brand Strategy & Identity',
-    tagline: 'Sharpen positioning, voice, and visual identity.',
-    description:
-      'Workshops, market research, and identity systems that give your brand a confident, recognizable voice.',
-    starts_at: 'from $3,500',
-    deliverables: [
-      'Brand audit & competitive analysis',
-      'Positioning + messaging framework',
-      'Logo, color, and type system',
-      'Brand guidelines document',
-    ],
+    name: 'Brand strategy',
+    tagline: 'Positioning, identity, and voice systems.',
     icon: 'strategy',
   },
   {
-    slug: 'paid-advertising',
-    name: 'Paid Advertising',
-    tagline: 'Performance ads across Meta, Google, and TikTok.',
-    description:
-      'Full-funnel campaign management with creative testing, audience research, and weekly optimization.',
-    starts_at: 'from $1,500 / mo',
-    deliverables: [
-      'Channel strategy & account setup',
-      'Creative production & testing',
-      'Weekly optimization sprints',
-      'Live performance dashboards',
-    ],
+    name: 'Paid advertising',
+    tagline: 'Meta, Google, TikTok — full-funnel.',
     icon: 'ads',
   },
   {
-    slug: 'seo',
-    name: 'Search Engine Optimization',
-    tagline: 'Rank for the queries that grow your pipeline.',
-    description:
-      'Technical SEO audits, content roadmaps, and link building to compound organic traffic month over month.',
-    starts_at: 'from $1,200 / mo',
-    deliverables: [
-      'Technical audit & fixes',
-      'Keyword + content strategy',
-      'On-page optimization',
-      'Authority + link building',
-    ],
+    name: 'Search engine optimization',
+    tagline: 'Technical SEO, content, and links.',
     icon: 'seo',
   },
   {
-    slug: 'content-marketing',
-    name: 'Content Marketing',
-    tagline: 'Editorial, video, and social that actually converts.',
-    description:
-      'Editorial calendars, long-form content, and short-form video built around what your audience is searching for.',
-    starts_at: 'from $2,000 / mo',
-    deliverables: [
-      'Editorial calendar',
-      'Long-form articles & guides',
-      'Short-form video production',
-      'Distribution & repurposing',
-    ],
+    name: 'Content & video',
+    tagline: 'Editorial, long-form, short-form.',
     icon: 'content',
   },
   {
-    slug: 'web-design',
-    name: 'Web Design & Development',
-    tagline: 'Marketing sites and landing pages that close.',
-    description:
-      'High-converting marketing sites and landing pages designed and built to support your growth motion.',
-    starts_at: 'from $5,000',
-    deliverables: [
-      'UX research & wireframes',
-      'High-fidelity visual design',
-      'Build on Webflow / React / Next',
-      'A/B testing harness',
-    ],
+    name: 'Web design & dev',
+    tagline: 'Marketing sites and landing pages.',
     icon: 'web',
   },
   {
-    slug: 'email-crm',
-    name: 'Email & CRM Automation',
-    tagline: 'Nurture sequences and lifecycle marketing.',
-    description:
-      'Lifecycle email programs that convert leads and re-activate customers — without spamming your list.',
-    starts_at: 'from $1,000 / mo',
-    deliverables: [
-      'Lifecycle journey mapping',
-      'Template & flow build-out',
-      'Segmentation & deliverability',
-      'Monthly performance review',
-    ],
+    name: 'Email & CRM',
+    tagline: 'Lifecycle automation that converts.',
     icon: 'email',
   },
   {
-    slug: 'analytics',
-    name: 'Analytics & Attribution',
-    tagline: "See what's actually working — across channels.",
-    description:
-      'GA4, server-side tagging, dashboards, and attribution modeling so you can make confident decisions.',
-    starts_at: 'from $2,500',
-    deliverables: [
-      'Tagging & event plan',
-      'GA4 + server-side setup',
-      'Dashboard build-out',
-      'Quarterly attribution review',
-    ],
+    name: 'Analytics & attribution',
+    tagline: 'GA4, dashboards, and clean reporting.',
     icon: 'analytics',
   },
   {
-    slug: 'social-media',
-    name: 'Social Media Management',
-    tagline: 'Always-on social presence with bite.',
-    description:
-      'Strategy, content production, community management, and reporting for the platforms that matter.',
-    starts_at: 'from $1,800 / mo',
-    deliverables: [
-      'Content pillars & calendar',
-      'Daily publishing & engagement',
-      'Community management',
-      'Monthly insights report',
-    ],
+    name: 'Social media',
+    tagline: 'Always-on presence with engagement.',
     icon: 'social',
   },
 ];
 
-export default function Services() {
-  const [services, setServices] = useState<Service[]>(FALLBACK_SERVICES);
+export const FULL_SERVICE_FALLBACK: Service = {
+  slug: 'full-service',
+  name: 'Full-service marketing partner',
+  tagline: 'One team. Every channel. Every deliverable.',
+  description:
+    "DigiPros is your end-to-end marketing partner. Strategy, paid media, SEO, content, web, email, analytics, and social — all under one roof, scoped to your business and your goals. One contract, one team, one set of dashboards.",
+  starts_at: 'Custom — tailored per engagement',
+  deliverables: OFFERINGS.map((o) => `${o.name} — ${o.tagline}`),
+  icon: 'bundle',
+};
 
-  useEffect(() => {
-    let alive = true;
-    api
-      .listServices()
-      .then((data) => {
-        if (alive && data?.length) setServices(data);
-      })
-      .catch(() => {
-        /* keep fallback */
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
+export default function Services() {
+  const tilt = useTilt<HTMLDivElement>({ max: 4, lift: 3 });
 
   return (
     <section id="services" className="services section">
+      <div className="services-bg" aria-hidden="true">
+        <span className="services-blob services-blob-blue" />
+        <span className="services-blob services-blob-yellow" />
+      </div>
+
       <div className="container services-inner">
-        <div className="services-head">
-          <span className="eyebrow">Services</span>
-          <h2 className="services-title">Pick the service. We'll tailor the quote.</h2>
+        <Reveal className="services-head">
+          <span className="eyebrow">What we do</span>
+          <h2 className="services-title">
+            One team. Every channel. <span className="services-title-accent">Built for growth.</span>
+          </h2>
           <p className="services-sub">
-            Every engagement is custom-scoped to your business stage, goals,
-            and budget. Tell us what you need and we'll send a tailored
-            proposal within two business days.
+            DigiPros is a full-stack marketing partner — not a list of menu items.
+            You get every discipline under one roof, one contract, and one team
+            obsessed with your numbers.
           </p>
-        </div>
+        </Reveal>
 
-        <ul className="services-grid">
-          {services.map((s, i) => (
-            <li
-              key={s.slug}
-              className="service-card"
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
-              <div className="service-card-head">
-                <span className="service-icon" aria-hidden="true">
-                  <ServiceIcon slug={s.icon || s.slug} />
-                </span>
-                <div>
-                  <h3>{s.name}</h3>
-                  <p className="service-tagline">{s.tagline}</p>
-                </div>
-              </div>
+        <Reveal direction="up" delay={120}>
+          <div
+            className="service-bundle"
+            ref={tilt.ref}
+            onMouseMove={tilt.onMouseMove}
+            onMouseLeave={tilt.onMouseLeave}
+          >
+            <div className="service-bundle-spotlight" aria-hidden="true" />
+            <div className="service-bundle-glow" aria-hidden="true" />
 
-              <p className="service-description">{s.description}</p>
+            <div className="service-bundle-head">
+              <span className="service-bundle-badge">
+                <span className="service-bundle-badge-dot" />
+                Full-service partnership
+              </span>
+              <h3 className="service-bundle-title">
+                Everything you need to grow — in one engagement.
+              </h3>
+              <p className="service-bundle-tagline">
+                Strategy, creative, channels, and analytics, scoped together so
+                they actually compound month over month.
+              </p>
+            </div>
 
-              <ul className="service-deliverables">
-                {s.deliverables.map((d) => (
-                  <li key={d}>
-                    <svg
-                      viewBox="0 0 24 24"
-                      width="14"
-                      height="14"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M5 12l5 5L20 7" />
-                    </svg>
-                    <span>{d}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="service-foot">
-                <span className="service-price">{s.starts_at}</span>
-                <Link
-                  to={`/quote?service=${encodeURIComponent(s.slug)}`}
-                  className="btn btn-primary service-cta"
+            <ul className="service-bundle-grid">
+              {OFFERINGS.map((o, i) => (
+                <li
+                  key={o.name}
+                  className="service-bundle-item"
+                  style={{ animationDelay: `${i * 60}ms` }}
                 >
-                  Get a quote
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="M13 5l7 7-7 7" />
-                  </svg>
-                </Link>
+                  <span className="service-bundle-icon" aria-hidden="true">
+                    <ServiceIcon slug={o.icon} />
+                  </span>
+                  <div>
+                    <strong>{o.name}</strong>
+                    <span>{o.tagline}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="service-bundle-foot">
+              <div className="service-bundle-pricing">
+                <span className="service-bundle-pricing-label">Pricing</span>
+                <strong>Custom — tailored per engagement</strong>
+                <span className="service-bundle-pricing-sub">
+                  Engagement scope is built around your goals, budget, and
+                  business stage. Most retainers start between $2,500 and
+                  $25,000 / mo.
+                </span>
+              </div>
+              <Link
+                to={`/quote?service=${FULL_SERVICE_FALLBACK.slug}`}
+                className="btn btn-primary service-bundle-cta"
+              >
+                Get a free quote
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14" />
+                  <path d="M13 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal direction="up" delay={200}>
+          <ul className="services-promises">
+            <li>
+              <span className="services-promise-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2l3 7h7l-5.5 4.5L18 22l-6-4-6 4 1.5-8.5L2 9h7z" />
+                </svg>
+              </span>
+              <div>
+                <strong>One team, one contract</strong>
+                <span>No agency-of-record juggling. Everything lands in one Slack channel and one dashboard.</span>
               </div>
             </li>
-          ))}
-        </ul>
+            <li>
+              <span className="services-promise-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 17l5-5 4 4 8-9" />
+                  <path d="M14 7h6v6" />
+                </svg>
+              </span>
+              <div>
+                <strong>Reported on outcomes</strong>
+                <span>We tie every channel back to revenue, ROAS, and pipeline — not vanity metrics.</span>
+              </div>
+            </li>
+            <li>
+              <span className="services-promise-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
+              </span>
+              <div>
+                <strong>Move in weeks, not quarters</strong>
+                <span>From signed quote to live campaigns in 2–4 weeks for most clients.</span>
+              </div>
+            </li>
+          </ul>
+        </Reveal>
       </div>
     </section>
   );
@@ -236,8 +208,8 @@ interface IconProps {
 function ServiceIcon({ slug }: IconProps) {
   const common = {
     viewBox: '0 0 24 24',
-    width: 22,
-    height: 22,
+    width: 18,
+    height: 18,
     fill: 'none',
     stroke: 'currentColor',
     strokeWidth: 2,
@@ -246,7 +218,6 @@ function ServiceIcon({ slug }: IconProps) {
   };
   switch (slug) {
     case 'strategy':
-    case 'brand-strategy':
       return (
         <svg {...common}>
           <circle cx="12" cy="12" r="9" />
@@ -255,7 +226,6 @@ function ServiceIcon({ slug }: IconProps) {
         </svg>
       );
     case 'ads':
-    case 'paid-advertising':
       return (
         <svg {...common}>
           <path d="M3 17l5-5 4 4 8-9" />
@@ -270,7 +240,6 @@ function ServiceIcon({ slug }: IconProps) {
         </svg>
       );
     case 'content':
-    case 'content-marketing':
       return (
         <svg {...common}>
           <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z" />
@@ -278,7 +247,6 @@ function ServiceIcon({ slug }: IconProps) {
         </svg>
       );
     case 'web':
-    case 'web-design':
       return (
         <svg {...common}>
           <rect x="3" y="4" width="18" height="14" rx="2" />
@@ -287,7 +255,6 @@ function ServiceIcon({ slug }: IconProps) {
         </svg>
       );
     case 'email':
-    case 'email-crm':
       return (
         <svg {...common}>
           <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -305,7 +272,6 @@ function ServiceIcon({ slug }: IconProps) {
         </svg>
       );
     case 'social':
-    case 'social-media':
       return (
         <svg {...common}>
           <circle cx="6" cy="12" r="3" />
@@ -318,21 +284,4 @@ function ServiceIcon({ slug }: IconProps) {
     default:
       return null;
   }
-}
-
-export function getFallbackServices(): Service[] {
-  return FALLBACK_SERVICES;
-}
-
-export function findService(slug: string): Service | undefined {
-  return FALLBACK_SERVICES.find((s) => s.slug === slug);
-}
-
-interface ServiceContentRenderProps {
-  children: ReactNode;
-}
-
-// Wrapper kept for type compatibility if you ever want to compose services.
-export function ServicesContent({ children }: ServiceContentRenderProps) {
-  return <>{children}</>;
 }

@@ -1,0 +1,399 @@
+.hero-dash {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 5 / 5.4;
+  transform-style: preserve-3d;
+  perspective: 1200px;
+  will-change: transform;
+  transition: transform 0.2s ease;
+}
+
+.hero-dash-glow {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-blue) 35%, transparent) 0%,
+    transparent 70%
+  );
+  filter: blur(40px);
+  z-index: -1;
+  animation: hero-dash-glow-pulse 5s ease-in-out infinite;
+}
+
+@keyframes hero-dash-glow-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.05); }
+}
+
+/* ---------- Main card ---------- */
+
+.hero-dash-card {
+  position: relative;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-elevated) 96%, transparent) 0%,
+      color-mix(in srgb, var(--color-elevated) 88%, transparent) 100%
+    );
+  border: 1px solid color-mix(in srgb, var(--color-blue) 25%, var(--color-cloud));
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 color-mix(in srgb, var(--color-blue-bright) 18%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.hero-dash-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    260px circle at calc(var(--mx, 0.5) * 100%) calc(var(--my, 0.3) * 100%),
+    color-mix(in srgb, var(--color-blue-bright) 16%, transparent) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.hero-dash:hover .hero-dash-card::after {
+  opacity: 1;
+}
+
+.hero-dash-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hero-dash-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hero-dash-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-ink-soft);
+  font-weight: 700;
+}
+
+.hero-dash-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  margin-top: 2px;
+  letter-spacing: -0.01em;
+}
+
+.hero-dash-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #10b981 18%, transparent);
+  color: #10b981;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hero-dash-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #10b981 30%, transparent);
+  animation: hero-dash-dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes hero-dash-dot-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.4); }
+}
+
+/* ---------- Stats row ---------- */
+
+.hero-dash-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.hero-dash-stat {
+  background: color-mix(in srgb, var(--color-snow) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-cloud) 70%, transparent);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero-dash-stat span {
+  font-size: 11px;
+  color: var(--color-ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+.hero-dash-stat strong {
+  font-size: 17px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  letter-spacing: -0.02em;
+}
+
+.hero-dash-stat em {
+  font-style: normal;
+  font-size: 12px;
+  color: #10b981;
+}
+
+.hero-dash-stat em.neg {
+  color: #ef4444;
+}
+
+/* ---------- Chart ---------- */
+
+.hero-dash-chart {
+  background: color-mix(in srgb, var(--color-snow) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-cloud) 70%, transparent);
+  border-radius: 14px;
+  padding: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-dash-svg {
+  width: 100%;
+  height: 120px;
+  display: block;
+  color: var(--color-ink-soft);
+}
+
+.hero-dash-line {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: hero-dash-draw 2.4s ease-out forwards;
+  filter: drop-shadow(0 4px 12px color-mix(in srgb, var(--color-blue) 35%, transparent));
+}
+
+@keyframes hero-dash-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.hero-dash-xaxis {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2px;
+  margin-top: 4px;
+  padding: 0 4px;
+  font-size: 10px;
+  color: var(--color-ink-soft);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ---------- Channels list ---------- */
+
+.hero-dash-channels {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hero-dash-channels li {
+  display: grid;
+  grid-template-columns: 80px 50px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: color-mix(in srgb, var(--color-snow) 60%, transparent);
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.hero-dash-channel-name {
+  font-weight: 700;
+}
+
+.hero-dash-channel-value {
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.hero-dash-channel-value.pos {
+  color: #10b981;
+}
+
+.hero-dash-channel-bar {
+  height: 6px;
+  background: color-mix(in srgb, var(--color-cloud) 70%, transparent);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-dash-channel-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-blue) 0%,
+    var(--color-blue-bright) 100%
+  );
+  border-radius: 999px;
+  transition: width 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Floating widgets ---------- */
+
+.hero-dash-float {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-elevated) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-blue) 25%, var(--color-cloud));
+  box-shadow: var(--shadow-md);
+  font-size: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2;
+}
+
+.hero-dash-float strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.hero-dash-float span,
+.hero-dash-float-meta,
+.hero-dash-float-label {
+  display: block;
+  font-size: 11px;
+  color: var(--color-ink-soft);
+  font-weight: 600;
+}
+
+.hero-dash-float-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero-dash-float-1 {
+  top: -14px;
+  right: -14px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  animation: hero-float-bob 6s ease-in-out infinite;
+}
+
+.hero-dash-float-1 strong {
+  color: #10b981;
+  font-size: 16px;
+}
+
+.hero-dash-float-2 {
+  top: 36%;
+  left: -22px;
+  animation: hero-float-bob 7s ease-in-out infinite reverse;
+}
+
+.hero-dash-float-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-blue) 22%, transparent);
+  color: var(--color-blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-dash-float-3 {
+  bottom: -16px;
+  right: 12%;
+  animation: hero-float-bob 8s ease-in-out infinite;
+}
+
+.hero-dash-float-avatars {
+  display: inline-flex;
+}
+
+.hero-dash-float-avatars span {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 11px;
+  border: 2px solid var(--color-elevated);
+  margin-left: -8px;
+}
+
+.hero-dash-float-avatars span:first-child {
+  margin-left: 0;
+}
+
+@keyframes hero-float-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+@media (max-width: 980px) {
+  .hero-dash {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .hero-dash-float-1 { top: -10px; right: 0; }
+  .hero-dash-float-2 { left: -8px; }
+  .hero-dash-float-3 { bottom: -10px; right: 4%; }
+}
+
+@media (max-width: 560px) {
+  .hero-dash-float-1,
+  .hero-dash-float-2,
+  .hero-dash-float-3 {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-dash-glow,
+  .hero-dash-line,
+  .hero-dash-float-1,
+  .hero-dash-float-2,
+  .hero-dash-float-3,
+  .hero-dash-dot {
+    animation: none !important;
+  }
+}

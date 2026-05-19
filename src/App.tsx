@@ -5,12 +5,12 @@ import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import AuthCallback from './components/AuthCallback';
 import ThemeToggle from './components/ThemeToggle';
+import ScrollProgress from './components/ScrollProgress';
 import Landing from './pages/Landing';
 import QuotePage from './pages/QuotePage';
 import PortalLayout from './pages/Portal';
 import PortalOverview from './pages/PortalOverview';
 import PortalQuotes from './pages/PortalQuotes';
-import PortalBusinesses from './pages/PortalBusinesses';
 import PortalSettings from './pages/PortalSettings';
 import { useAuth } from './auth/AuthContext';
 
@@ -29,6 +29,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <ScrollProgress />
       <Navbar onOpenAuth={openAuth} />
       <main>
         <Routes>
@@ -48,7 +49,6 @@ export default function App() {
           >
             <Route index element={<PortalOverview />} />
             <Route path="quotes" element={<PortalQuotes />} />
-            <Route path="businesses" element={<PortalBusinesses />} />
             <Route path="settings" element={<PortalSettings />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

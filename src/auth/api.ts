@@ -1,7 +1,5 @@
 import type {
   Analytics,
-  Business,
-  BusinessPayload,
   LoginPayload,
   OAuthProvider,
   Quote,
@@ -83,19 +81,6 @@ export const api = {
       method: 'POST',
       body: { access_token: accessToken },
     }),
-
-  listBusinesses: (token: string) =>
-    request<Business[]>('/businesses', { token }),
-  createBusiness: (token: string, payload: BusinessPayload) =>
-    request<Business>('/businesses', { method: 'POST', body: payload, token }),
-  updateBusiness: (token: string, id: number, payload: BusinessPayload) =>
-    request<Business>(`/businesses/${id}`, {
-      method: 'PUT',
-      body: payload,
-      token,
-    }),
-  deleteBusiness: (token: string, id: number) =>
-    request<void>(`/businesses/${id}`, { method: 'DELETE', token }),
 
   listServices: () => request<Service[]>('/services'),
   getService: (slug: string) => request<Service>(`/services/${slug}`),

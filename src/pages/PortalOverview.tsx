@@ -18,7 +18,7 @@ export default function PortalOverview() {
   const { user } = useAuth();
   const { analytics, quotes, loading } = useOutletContext<PortalContextLike>();
 
-  const firstName = (user?.name || user?.email || '').split(' ')[0].split('@')[0];
+  const companyName = user?.company_name ?? 'your company';
 
   if (loading || !analytics) {
     return (
@@ -73,7 +73,7 @@ export default function PortalOverview() {
       <header className="portal-page-head">
         <div>
           <span className="eyebrow">Overview</span>
-          <h1>Welcome back{firstName ? `, ${firstName}` : ''}.</h1>
+          <h1>Welcome back, {companyName}.</h1>
           <p>Here's how things are tracking across your campaigns.</p>
         </div>
         <Link to="/quote" className="btn btn-primary portal-cta">

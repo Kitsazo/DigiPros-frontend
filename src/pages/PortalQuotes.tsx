@@ -47,7 +47,7 @@ export default function PortalQuotes() {
                   <div>
                     <strong>{q.service_name}</strong>
                     <span className="quote-row-meta">
-                      {q.business_name}
+                      {q.company_name}
                       {q.monthly_budget ? ` · ${q.monthly_budget}` : ''}
                       {q.timeline ? ` · ${q.timeline}` : ''}
                     </span>

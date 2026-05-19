@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import Reveal from './Reveal';
 import './Contact.css';
 
 interface Channel {
@@ -48,7 +49,7 @@ export default function Contact() {
   return (
     <section id="contact" className="contact section">
       <div className="container">
-        <div className="contact-card">
+        <Reveal className="contact-card" direction="up">
           <div className="contact-card-bg" aria-hidden="true" />
 
           <div className="contact-text">
@@ -85,7 +86,7 @@ export default function Contact() {
               </a>
             ))}
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

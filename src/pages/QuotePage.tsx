@@ -8,11 +8,11 @@ import {
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../auth/api';
-import type { Business, Service } from '../auth/types';
-import { findService, getFallbackServices } from '../components/Services';
+import type { Service } from '../auth/types';
+import { FULL_SERVICE_FALLBACK } from '../components/Services';
 import './QuotePage.css';
 
-const BUSINESS_SIZES = [
+const COMPANY_SIZES = [
   'Solo founder',
   '2 – 10 employees',
   '11 – 50 employees',
@@ -51,9 +51,9 @@ interface QuoteForm {
   contact_name: string;
   contact_email: string;
   contact_phone: string;
-  business_name: string;
+  company_name: string;
   industry: string;
-  business_size: string;
+  company_size: string;
   employee_count: string;
   yearly_revenue: string;
   monthly_budget: string;
@@ -61,16 +61,15 @@ interface QuoteForm {
   goals: string;
   notes: string;
   referral_source: string;
-  business_id: string;
 }
 
 const EMPTY_FORM: QuoteForm = {
   contact_name: '',
   contact_email: '',
   contact_phone: '',
-  business_name: '',
+  company_name: '',
   industry: '',
-  business_size: '',
+  company_size: '',
   employee_count: '',
   yearly_revenue: '',
   monthly_budget: '',
@@ -78,7 +77,6 @@ const EMPTY_FORM: QuoteForm = {
   goals: '',
   notes: '',
   referral_source: '',
-  business_id: '',
 };
 
 interface QuotePageProps {
@@ -90,16 +88,28 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
   const navigate = useNavigate();
   const { user, token } = useAuth();
 
-  const serviceSlug = params.get('service') ?? 'paid-advertising';
-  const [service, setService] = useState<Service | undefined>(() =>
-    findService(serviceSlug),
-  );
+  const serviceSlug = params.get('service') ?? FULL_SERVICE_FALLBACK.slug;
+  const [service, setService] = useState<Service>(FULL_SERVICE_FALLBACK);
+  const [allServices, setAllServices] = useState<Service[]>([FULL_SERVICE_FALLBACK]);
 
-  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [form, setForm] = useState<QuoteForm>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [done, setDone] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    api
+      .listServices()
+      .then((list) => {
+        if (!alive || !list?.length) return;
+        setAllServices(list);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -108,8 +118,7 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
         if (alive && s) setService(s);
       },
       () => {
-        const fallback = findService(serviceSlug);
-        if (alive && fallback) setService(fallback);
+        if (alive) setService(FULL_SERVICE_FALLBACK);
       },
     );
     return () => {
@@ -117,76 +126,32 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
     };
   }, [serviceSlug]);
 
-  useEffect(() => {
-    if (!token) return;
-    let alive = true;
-    api
-      .listBusinesses(token)
-      .then((list) => {
-        if (!alive) return;
-        setBusinesses(list);
-        const active =
-          list.find((b) => b.id === user?.active_business_id) ?? list[0];
-        if (active) {
-          setForm((f) => ({
-            ...f,
-            business_id: String(active.id),
-            business_name: active.name,
-            industry: active.industry ?? '',
-            business_size: active.size ?? '',
-            employee_count:
-              active.employee_count != null ? String(active.employee_count) : '',
-            yearly_revenue:
-              active.yearly_revenue != null ? String(active.yearly_revenue) : '',
-          }));
-        }
-      })
-      .catch(() => undefined);
-    return () => {
-      alive = false;
-    };
-  }, [token, user?.active_business_id]);
-
+  // Pre-fill from the signed-in company account.
   useEffect(() => {
     if (!user) return;
     setForm((f) => ({
       ...f,
-      contact_name: f.contact_name || user.name || '',
+      contact_name: f.contact_name || user.contact_name || '',
       contact_email: f.contact_email || user.email,
-      contact_phone: f.contact_phone || user.phone || '',
+      contact_phone: f.contact_phone || user.phone || user.business_phone || '',
+      company_name: f.company_name || user.company_name,
+      industry: f.industry || user.industry || '',
+      company_size: f.company_size || user.company_size || '',
+      employee_count:
+        f.employee_count ||
+        (user.employee_count != null ? String(user.employee_count) : ''),
+      yearly_revenue:
+        f.yearly_revenue ||
+        (user.yearly_revenue != null ? String(user.yearly_revenue) : ''),
     }));
   }, [user]);
 
-  const services = useMemo(() => getFallbackServices(), []);
+  const services = useMemo(() => allServices, [allServices]);
 
   const onChange =
     (k: keyof QuoteForm) =>
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const onPickBusiness = (e: ChangeEvent<HTMLSelectElement>) => {
-    const id = e.target.value;
-    if (id === '') {
-      setForm((f) => ({
-        ...f,
-        business_id: '',
-      }));
-      return;
-    }
-    const b = businesses.find((b) => String(b.id) === id);
-    if (!b) return;
-    setForm((f) => ({
-      ...f,
-      business_id: id,
-      business_name: b.name,
-      industry: b.industry ?? f.industry,
-      business_size: b.size ?? f.business_size,
-      employee_count:
-        b.employee_count != null ? String(b.employee_count) : f.employee_count,
-      yearly_revenue:
-        b.yearly_revenue != null ? String(b.yearly_revenue) : f.yearly_revenue,
-    }));
-  };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -198,14 +163,14 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
     setError(null);
     try {
       await api.createQuote(token, {
-        service_slug: service?.slug ?? serviceSlug,
-        service_name: service?.name ?? serviceSlug,
+        service_slug: service.slug,
+        service_name: service.name,
         contact_name: form.contact_name,
         contact_email: form.contact_email,
         contact_phone: form.contact_phone || null,
-        business_name: form.business_name,
+        company_name: form.company_name,
         industry: form.industry || null,
-        business_size: form.business_size || null,
+        company_size: form.company_size || null,
         employee_count: form.employee_count ? Number(form.employee_count) : null,
         yearly_revenue: form.yearly_revenue ? Number(form.yearly_revenue) : null,
         monthly_budget: form.monthly_budget || null,
@@ -213,7 +178,6 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
         goals: form.goals || null,
         notes: form.notes || null,
         referral_source: form.referral_source || null,
-        business_id: form.business_id ? Number(form.business_id) : null,
       });
       setDone(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -246,16 +210,16 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
             <h1>Quote request received.</h1>
             <p>
               Thanks{form.contact_name ? `, ${form.contact_name.split(' ')[0]}` : ''} —
-              we'll review your details and send a tailored proposal within
-              two business days. You can track the status from your client
-              portal.
+              we'll review your details for {form.company_name || 'your company'} and
+              send a tailored proposal within two business days. You can track
+              the status from your client portal.
             </p>
             <div className="quote-success-actions">
               <Link to="/portal" className="btn btn-primary">
                 Open client portal
               </Link>
               <Link to="/#services" className="btn btn-ghost">
-                Browse more services
+                Back to services
               </Link>
             </div>
           </div>
@@ -284,21 +248,19 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
                 <path d="M19 12H5" />
                 <path d="M11 5l-7 7 7 7" />
               </svg>
-              All services
+              Back to services
             </Link>
-            <span className="eyebrow">Get a quote</span>
-            <h1 className="quote-title">{service?.name ?? 'Custom engagement'}</h1>
-            <p className="quote-tagline">
-              {service?.tagline ?? 'Tell us about your business and goals.'}
-            </p>
-            {service?.starts_at && (
+            <span className="eyebrow">Get a free quote</span>
+            <h1 className="quote-title">{service.name}</h1>
+            <p className="quote-tagline">{service.tagline}</p>
+            {service.starts_at && (
               <p className="quote-price">{service.starts_at}</p>
             )}
-            {service?.description && (
+            {service.description && (
               <p className="quote-description">{service.description}</p>
             )}
 
-            {service?.deliverables?.length ? (
+            {service.deliverables?.length ? (
               <ul className="quote-deliverables">
                 {service.deliverables.map((d) => (
                   <li key={d}>
@@ -324,7 +286,7 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
             <div className="quote-trust">
               <strong>Why submit a quote?</strong>
               <p>
-                Quotes are scoped to your business so the proposal you get back
+                Quotes are scoped to your company so the proposal you get back
                 is something you can actually action — pricing, deliverables,
                 and timeline all included.
               </p>
@@ -338,13 +300,13 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
               <span className="quote-section-num">1</span>
               <div>
                 <h2>Service</h2>
-                <p>Which service is this quote for?</p>
+                <p>What are you looking to get a quote for?</p>
               </div>
             </div>
             <label className="quote-field">
               <span>Selected service</span>
               <select
-                value={service?.slug ?? serviceSlug}
+                value={service.slug}
                 onChange={(e) =>
                   navigate(`/quote?service=${encodeURIComponent(e.target.value)}`)
                 }
@@ -410,34 +372,19 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
             <div className="quote-form-section-head">
               <span className="quote-section-num">3</span>
               <div>
-                <h2>About your business</h2>
+                <h2>About your company</h2>
                 <p>The more detail you share, the sharper the quote.</p>
               </div>
             </div>
 
-            {token && businesses.length > 0 && (
-              <label className="quote-field">
-                <span>Use a saved business</span>
-                <select
-                  value={form.business_id}
-                  onChange={onPickBusiness}
-                >
-                  <option value="">Enter manually</option>
-                  {businesses.map((b) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
-              </label>
-            )}
-
             <div className="quote-grid">
               <label className="quote-field">
-                <span>Business name</span>
+                <span>Company name</span>
                 <input
                   type="text"
                   required
-                  value={form.business_name}
-                  onChange={onChange('business_name')}
+                  value={form.company_name}
+                  onChange={onChange('company_name')}
                 />
               </label>
               <label className="quote-field">
@@ -452,11 +399,11 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
               <label className="quote-field">
                 <span>Company size</span>
                 <select
-                  value={form.business_size}
-                  onChange={onChange('business_size')}
+                  value={form.company_size}
+                  onChange={onChange('company_size')}
                 >
                   <option value="">Select…</option>
-                  {BUSINESS_SIZES.map((s) => (
+                  {COMPANY_SIZES.map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
@@ -549,8 +496,8 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
 
           {!token && (
             <p className="quote-auth-hint">
-              You'll be asked to create an account to submit — it takes 30
-              seconds and gives you access to your client portal.
+              You'll create your company account when you submit — it takes
+              under a minute and gives you access to your client portal.
             </p>
           )}
 

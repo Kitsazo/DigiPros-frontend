@@ -85,11 +85,9 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
             <>
               <Link to="/portal" className="navbar-user-pill">
                 <span className="navbar-user-dot" aria-hidden="true">
-                  {(user.name || user.email)[0]?.toUpperCase()}
+                  {(user.company_name || user.email)[0]?.toUpperCase()}
                 </span>
-                <span className="navbar-user">
-                  {user.name || user.email.split('@')[0]}
-                </span>
+                <span className="navbar-user">{user.company_name}</span>
               </Link>
               <button className="btn btn-ghost navbar-cta" onClick={logout}>
                 Log out

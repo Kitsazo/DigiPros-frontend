@@ -25,25 +25,35 @@ Frontend/
     │   └── AuthContext.tsx   # AuthProvider + useAuth()
     ├── theme/
     │   └── ThemeContext.tsx
+    ├── hooks/
+    │   ├── useReveal.ts          # IntersectionObserver-driven scroll reveal
+    │   ├── useTilt.ts            # cursor-following 3D tilt
+    │   └── useTypewriter.ts      # rotating typewriter text
     ├── pages/
     │   ├── Landing.tsx           # Hero + About + Services + Contact
-    │   ├── QuotePage.(tsx|css)   # /quote — quote request form
+    │   ├── QuotePage.(tsx|css)   # /quote — company-aware quote form
     │   ├── Portal.(tsx|css)      # /portal layout + sidebar
     │   ├── PortalOverview.tsx    # analytics dashboard
     │   ├── PortalQuotes.tsx      # quote history
-    │   ├── PortalBusinesses.tsx  # manage businesses
-    │   └── PortalSettings.tsx    # theme + contact + active business
+    │   └── PortalSettings.tsx    # appearance + company info + contact
     └── components/
         ├── Navbar.(tsx|css)
-        ├── Hero.(tsx|css)
+        ├── Hero.(tsx|css)        # left-aligned title w/ rotating typewriter
+        ├── HeroDashboard.(tsx|css) # animated dashboard mock for the right
         ├── About.(tsx|css)
-        ├── Services.(tsx|css)    # service grid + "Get a quote" CTAs
+        ├── Services.(tsx|css)    # ONE unified offering + "Get a free quote"
         ├── Contact.(tsx|css)
         ├── Footer.(tsx|css)
-        ├── AuthModal.(tsx|css)   # 2-step signup that collects business info
+        ├── AuthModal.(tsx|css)   # 2-step company signup (company → login)
         ├── AuthCallback.tsx
+        ├── Reveal.(tsx|css)      # scroll-triggered fade/slide wrapper
+        ├── ScrollProgress.(tsx|css) # top page-scroll progress bar
         └── ThemeToggle.(tsx|css)
 ```
+
+Accounts are **company-based** — one company == one account. The
+displayed identity throughout the portal is the company name, not the
+person who manages the account.
 
 Each component owns its own CSS file. Color tokens (white / blue / yellow)
 live in `src/styles/global.css` under `:root` — change them in one place to
@@ -52,11 +62,11 @@ re-skin the whole site.
 ## Routes
 
 - `/` — marketing landing page
-- `/quote?service=<slug>` — quote-request form (signs visitors up if needed)
+- `/quote?service=<slug>` — quote-request form (creates the company
+  account if the visitor isn't signed in yet)
 - `/portal` — client portal dashboard with placeholder analytics
 - `/portal/quotes` — quote history
-- `/portal/businesses` — add / edit businesses tied to the account
-- `/portal/settings` — appearance, contact info, active business
+- `/portal/settings` — appearance, company info, account-manager contact
 - `/auth/callback` — OAuth redirect target
 
 Auth lives under `src/auth/`:

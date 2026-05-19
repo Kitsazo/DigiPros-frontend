@@ -1,7 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../auth/AuthContext';
-import type { BusinessSignupInfo } from '../auth/types';
 import './AuthModal.css';
 
 const GOOGLE_ENABLED = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
@@ -13,14 +12,9 @@ interface AuthModalProps {
 }
 
 type Mode = 'login' | 'signup';
-type SignupStep = 'account' | 'business';
+type SignupStep = 'company' | 'account';
 
-const tabs: { id: Mode; label: string }[] = [
-  { id: 'login', label: 'Log in' },
-  { id: 'signup', label: 'Sign up' },
-];
-
-const BUSINESS_SIZES = [
+const COMPANY_SIZES = [
   'Solo founder',
   '2 – 10 employees',
   '11 – 50 employees',
@@ -32,42 +26,36 @@ const BUSINESS_SIZES = [
 interface AccountForm {
   email: string;
   password: string;
-  name: string;
+  contact_name: string;
   phone: string;
 }
 
-interface BusinessForm {
-  name: string;
+interface CompanyForm {
+  company_name: string;
   industry: string;
-  size: string;
+  company_size: string;
   employee_count: string;
   yearly_revenue: string;
   website: string;
-  phone: string;
+  business_phone: string;
 }
 
-const EMPTY_ACCOUNT: AccountForm = { email: '', password: '', name: '', phone: '' };
-const EMPTY_BUSINESS: BusinessForm = {
-  name: '',
-  industry: '',
-  size: '',
-  employee_count: '',
-  yearly_revenue: '',
-  website: '',
+const EMPTY_ACCOUNT: AccountForm = {
+  email: '',
+  password: '',
+  contact_name: '',
   phone: '',
 };
 
-function toBusinessPayload(b: BusinessForm): BusinessSignupInfo {
-  return {
-    name: b.name.trim(),
-    industry: b.industry.trim() || null,
-    size: b.size || null,
-    employee_count: b.employee_count ? Number(b.employee_count) : null,
-    yearly_revenue: b.yearly_revenue ? Number(b.yearly_revenue) : null,
-    website: b.website.trim() || null,
-    phone: b.phone.trim() || null,
-  };
-}
+const EMPTY_COMPANY: CompanyForm = {
+  company_name: '',
+  industry: '',
+  company_size: '',
+  employee_count: '',
+  yearly_revenue: '',
+  website: '',
+  business_phone: '',
+};
 
 export default function AuthModal({
   open,
@@ -76,9 +64,9 @@ export default function AuthModal({
 }: AuthModalProps) {
   const { login, signup, loginWithGoogle, oauthLogin, providers } = useAuth();
   const [mode, setMode] = useState<Mode>(defaultMode);
-  const [step, setStep] = useState<SignupStep>('account');
+  const [step, setStep] = useState<SignupStep>('company');
   const [account, setAccount] = useState<AccountForm>(EMPTY_ACCOUNT);
-  const [business, setBusiness] = useState<BusinessForm>(EMPTY_BUSINESS);
+  const [company, setCompany] = useState<CompanyForm>(EMPTY_COMPANY);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -109,7 +97,7 @@ export default function AuthModal({
 
   useEffect(() => {
     setError(null);
-    setStep('account');
+    setStep('company');
   }, [mode, open]);
 
   useEffect(() => {
@@ -122,25 +110,25 @@ export default function AuthModal({
     (k: keyof AccountForm) => (e: ChangeEvent<HTMLInputElement>) =>
       setAccount((f) => ({ ...f, [k]: e.target.value }));
 
-  const onBusinessChange =
-    (k: keyof BusinessForm) =>
+  const onCompanyChange =
+    (k: keyof CompanyForm) =>
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      setBusiness((f) => ({ ...f, [k]: e.target.value }));
+      setCompany((f) => ({ ...f, [k]: e.target.value }));
 
-  const goToBusinessStep = (e: FormEvent<HTMLFormElement>) => {
+  const goToAccountStep = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    if (account.password.length < 8) {
-      setError('Password must be at least 8 characters.');
+    if (!company.company_name.trim()) {
+      setError('Your company name is required.');
       return;
     }
-    setStep('business');
+    setStep('account');
   };
 
   const submitSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!business.name.trim()) {
-      setError('Tell us your business name so we can tailor your account.');
+    if (account.password.length < 8) {
+      setError('Password must be at least 8 characters.');
       return;
     }
     setSubmitting(true);
@@ -149,9 +137,19 @@ export default function AuthModal({
       await signup({
         email: account.email,
         password: account.password,
-        name: account.name || null,
+        contact_name: account.contact_name || null,
         phone: account.phone || null,
-        business: toBusinessPayload(business),
+        company_name: company.company_name.trim(),
+        industry: company.industry.trim() || null,
+        company_size: company.company_size || null,
+        employee_count: company.employee_count
+          ? Number(company.employee_count)
+          : null,
+        yearly_revenue: company.yearly_revenue
+          ? Number(company.yearly_revenue)
+          : null,
+        website: company.website.trim() || null,
+        business_phone: company.business_phone.trim() || null,
       });
       onClose();
     } catch (err) {
@@ -175,8 +173,8 @@ export default function AuthModal({
     }
   };
 
-  const goBackToAccount = () => {
-    setStep('account');
+  const goBackToCompany = () => {
+    setStep('company');
     setError(null);
   };
 
@@ -187,18 +185,20 @@ export default function AuthModal({
 
         <h2 className="auth-title">
           {mode === 'signup'
-            ? step === 'business'
-              ? 'Tell us about your business'
-              : 'Create your account'
+            ? step === 'company'
+              ? 'Create your company account'
+              : 'Almost there'
             : 'Welcome back'}
         </h2>
         <p className="auth-sub">
-          {mode === 'signup' && step === 'business'
-            ? "We'll use this to scope quotes, dashboards, and reports to your business."
+          {mode === 'signup'
+            ? step === 'company'
+              ? 'Accounts are company-based — one company, one account. Start with your business details.'
+              : 'Set up the login credentials for the person managing this account.'
             : 'Access proposals, reports, and your DigiPros client portal.'}
         </p>
 
-        {!(mode === 'signup' && step === 'business') && (
+        {!(mode === 'signup' && step === 'account') && (
           <>
             <div className="auth-providers">
               {GOOGLE_ENABLED && (
@@ -231,18 +231,24 @@ export default function AuthModal({
             <div className="auth-divider"><span>or</span></div>
 
             <div className="auth-tabs" role="tablist">
-              {tabs.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={mode === t.id}
-                  className={`auth-tab ${mode === t.id ? 'is-active' : ''}`}
-                  onClick={() => setMode(t.id)}
-                >
-                  {t.label}
-                </button>
-              ))}
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === 'login'}
+                className={`auth-tab ${mode === 'login' ? 'is-active' : ''}`}
+                onClick={() => setMode('login')}
+              >
+                Log in
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === 'signup'}
+                className={`auth-tab ${mode === 'signup' ? 'is-active' : ''}`}
+                onClick={() => setMode('signup')}
+              >
+                Sign up
+              </button>
             </div>
           </>
         )}
@@ -250,15 +256,15 @@ export default function AuthModal({
         {mode === 'signup' && (
           <div className="auth-stepper" role="list" aria-label="Signup progress">
             <span
-              className={`auth-step ${step === 'account' ? 'is-active' : 'is-complete'}`}
+              className={`auth-step ${step === 'company' ? 'is-active' : 'is-complete'}`}
             >
-              <span className="auth-step-num">1</span> Account
+              <span className="auth-step-num">1</span> Company
             </span>
             <span className="auth-step-line" aria-hidden="true" />
             <span
-              className={`auth-step ${step === 'business' ? 'is-active' : ''}`}
+              className={`auth-step ${step === 'account' ? 'is-active' : ''}`}
             >
-              <span className="auth-step-num">2</span> Business
+              <span className="auth-step-num">2</span> Login
             </span>
           </div>
         )}
@@ -296,16 +302,114 @@ export default function AuthModal({
           </form>
         )}
 
-        {mode === 'signup' && step === 'account' && (
-          <form className="auth-form" onSubmit={goToBusinessStep}>
+        {mode === 'signup' && step === 'company' && (
+          <form className="auth-form" onSubmit={goToAccountStep}>
             <label>
-              <span>Full name</span>
+              <span>Company name</span>
               <input
                 type="text"
                 required
+                placeholder="e.g. Kitsazo Productions LLC"
+                value={company.company_name}
+                onChange={onCompanyChange('company_name')}
+              />
+            </label>
+            <div className="auth-row">
+              <label>
+                <span>Industry</span>
+                <input
+                  type="text"
+                  placeholder="SaaS, e-commerce, agency…"
+                  value={company.industry}
+                  onChange={onCompanyChange('industry')}
+                />
+              </label>
+              <label>
+                <span>Company size</span>
+                <select
+                  value={company.company_size}
+                  onChange={onCompanyChange('company_size')}
+                >
+                  <option value="">Select…</option>
+                  {COMPANY_SIZES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="auth-row">
+              <label>
+                <span>Employees</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={company.employee_count}
+                  onChange={onCompanyChange('employee_count')}
+                />
+              </label>
+              <label>
+                <span>Yearly revenue (USD)</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={company.yearly_revenue}
+                  onChange={onCompanyChange('yearly_revenue')}
+                />
+              </label>
+            </div>
+            <label>
+              <span>Website <span className="auth-opt">(optional)</span></span>
+              <input
+                type="url"
+                placeholder="https://"
+                value={company.website}
+                onChange={onCompanyChange('website')}
+              />
+            </label>
+            <label>
+              <span>Business phone <span className="auth-opt">(optional)</span></span>
+              <input
+                type="tel"
+                value={company.business_phone}
+                onChange={onCompanyChange('business_phone')}
+              />
+            </label>
+
+            {error && <p className="auth-error">{error}</p>}
+
+            <button
+              type="submit"
+              className="btn btn-primary auth-submit"
+              disabled={submitting}
+            >
+              Continue
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14" />
+                <path d="M13 5l7 7-7 7" />
+              </svg>
+            </button>
+          </form>
+        )}
+
+        {mode === 'signup' && step === 'account' && (
+          <form className="auth-form" onSubmit={submitSignup}>
+            <label>
+              <span>Your name <span className="auth-opt">(account manager)</span></span>
+              <input
+                type="text"
                 autoComplete="name"
-                value={account.name}
-                onChange={onAccountChange('name')}
+                value={account.contact_name}
+                onChange={onAccountChange('contact_name')}
               />
             </label>
             <label>
@@ -338,94 +442,6 @@ export default function AuthModal({
                 onChange={onAccountChange('password')}
               />
             </label>
-            {error && <p className="auth-error">{error}</p>}
-            <button
-              type="submit"
-              className="btn btn-primary auth-submit"
-              disabled={submitting}
-            >
-              Continue
-              <svg
-                viewBox="0 0 24 24"
-                width="16"
-                height="16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M5 12h14" />
-                <path d="M13 5l7 7-7 7" />
-              </svg>
-            </button>
-          </form>
-        )}
-
-        {mode === 'signup' && step === 'business' && (
-          <form className="auth-form" onSubmit={submitSignup}>
-            <label>
-              <span>Business name</span>
-              <input
-                type="text"
-                required
-                value={business.name}
-                onChange={onBusinessChange('name')}
-              />
-            </label>
-            <div className="auth-row">
-              <label>
-                <span>Industry</span>
-                <input
-                  type="text"
-                  placeholder="e.g. SaaS, e-commerce, agency"
-                  value={business.industry}
-                  onChange={onBusinessChange('industry')}
-                />
-              </label>
-              <label>
-                <span>Company size</span>
-                <select
-                  value={business.size}
-                  onChange={onBusinessChange('size')}
-                >
-                  <option value="">Select…</option>
-                  {BUSINESS_SIZES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <div className="auth-row">
-              <label>
-                <span>Employees</span>
-                <input
-                  type="number"
-                  min={0}
-                  value={business.employee_count}
-                  onChange={onBusinessChange('employee_count')}
-                />
-              </label>
-              <label>
-                <span>Yearly revenue (USD)</span>
-                <input
-                  type="number"
-                  min={0}
-                  value={business.yearly_revenue}
-                  onChange={onBusinessChange('yearly_revenue')}
-                />
-              </label>
-            </div>
-            <label>
-              <span>Website <span className="auth-opt">(optional)</span></span>
-              <input
-                type="url"
-                placeholder="https://"
-                value={business.website}
-                onChange={onBusinessChange('website')}
-              />
-            </label>
 
             {error && <p className="auth-error">{error}</p>}
 
@@ -433,7 +449,7 @@ export default function AuthModal({
               <button
                 type="button"
                 className="btn btn-ghost auth-back"
-                onClick={goBackToAccount}
+                onClick={goBackToCompany}
                 disabled={submitting}
               >
                 ← Back
