@@ -5,23 +5,35 @@ import './AuthModal.css';
 
 const GOOGLE_ENABLED = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
+const EMPLOYEE_RANGES = [
+  'Self-employed',
+  '1–5 employees',
+  '5–10 employees',
+  '10–15 employees',
+  '20–30 employees',
+  '50+ employees',
+];
+
+const REVENUE_RANGES = [
+  '$1,000 – $10,000 / year',
+  '$10,000 – $50,000 / year',
+  '$50,000 – $100,000 / year',
+  '$100,000 – $200,000 / year',
+  '$200,000+ / year',
+];
+
+type AuthIntent = 'default' | 'quote';
+
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
   defaultMode?: Mode;
+  intent?: AuthIntent;
+  onAuthSuccess?: (result: { isNew: boolean }) => void;
 }
 
-type Mode = 'login' | 'signup';
+type Mode = 'login' | 'signup' | 'google-setup';
 type SignupStep = 'company' | 'account';
-
-const COMPANY_SIZES = [
-  'Solo founder',
-  '2 – 10 employees',
-  '11 – 50 employees',
-  '51 – 200 employees',
-  '201 – 1,000 employees',
-  '1,000+ employees',
-];
 
 interface AccountForm {
   email: string;
@@ -33,7 +45,6 @@ interface AccountForm {
 interface CompanyForm {
   company_name: string;
   industry: string;
-  company_size: string;
   employee_count: string;
   yearly_revenue: string;
   website: string;
@@ -50,7 +61,6 @@ const EMPTY_ACCOUNT: AccountForm = {
 const EMPTY_COMPANY: CompanyForm = {
   company_name: '',
   industry: '',
-  company_size: '',
   employee_count: '',
   yearly_revenue: '',
   website: '',
@@ -61,8 +71,11 @@ export default function AuthModal({
   open,
   onClose,
   defaultMode = 'login',
+  intent = 'default',
+  onAuthSuccess,
 }: AuthModalProps) {
-  const { login, signup, loginWithGoogle, oauthLogin, providers } = useAuth();
+  const { login, signup, loginWithGoogle, oauthLogin, providers, updateProfile } = useAuth();
+  const isQuoteFlow = intent === 'quote';
   const [mode, setMode] = useState<Mode>(defaultMode);
   const [step, setStep] = useState<SignupStep>('company');
   const [account, setAccount] = useState<AccountForm>(EMPTY_ACCOUNT);
@@ -70,13 +83,23 @@ export default function AuthModal({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
+  const finishAuth = (isNew: boolean) => {
+    onAuthSuccess?.({ isNew });
+    onClose();
+  };
+
   const googleSignIn = useGoogleLogin({
     onSuccess: async (response) => {
       setError(null);
       setSubmitting(true);
       try {
-        await loginWithGoogle(response.access_token);
-        onClose();
+        const { isNew } = await loginWithGoogle(response.access_token);
+        if (isNew && !isQuoteFlow) {
+          setCompany(EMPTY_COMPANY);
+          setMode('google-setup');
+        } else {
+          finishAuth(isNew);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Google sign-in failed');
       } finally {
@@ -125,6 +148,28 @@ export default function AuthModal({
     setStep('account');
   };
 
+  const submitQuoteSignup = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (account.password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      await signup({
+        email: account.email,
+        password: account.password,
+        contact_name: account.contact_name || null,
+      });
+      finishAuth(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const submitSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (account.password.length < 8) {
@@ -141,17 +186,12 @@ export default function AuthModal({
         phone: account.phone || null,
         company_name: company.company_name.trim(),
         industry: company.industry.trim() || null,
-        company_size: company.company_size || null,
-        employee_count: company.employee_count
-          ? Number(company.employee_count)
-          : null,
-        yearly_revenue: company.yearly_revenue
-          ? Number(company.yearly_revenue)
-          : null,
+        employee_count: company.employee_count || null,
+        yearly_revenue: company.yearly_revenue || null,
         website: company.website.trim() || null,
         business_phone: company.business_phone.trim() || null,
       });
-      onClose();
+      finishAuth(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -165,7 +205,32 @@ export default function AuthModal({
     setError(null);
     try {
       await login({ email: account.email, password: account.password });
-      onClose();
+      finishAuth(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitGoogleSetup = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!company.company_name.trim()) {
+      setError('Your company name is required.');
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      await updateProfile({
+        company_name: company.company_name.trim(),
+        industry: company.industry.trim() || null,
+        employee_count: company.employee_count || null,
+        yearly_revenue: company.yearly_revenue || null,
+        website: company.website.trim() || null,
+        business_phone: company.business_phone.trim() || null,
+      });
+      finishAuth(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -178,27 +243,39 @@ export default function AuthModal({
     setError(null);
   };
 
+  const showOAuthButtons =
+    mode !== 'google-setup' &&
+    !(mode === 'signup' && step === 'account' && !isQuoteFlow);
+
   return (
     <div className="auth-overlay" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="auth-card" onClick={(e) => e.stopPropagation()}>
         <button className="auth-close" onClick={onClose} aria-label="Close">×</button>
 
         <h2 className="auth-title">
-          {mode === 'signup'
+          {isQuoteFlow
+            ? 'Get your free quote'
+            : mode === 'google-setup'
+            ? 'Tell us about your company'
+            : mode === 'signup'
             ? step === 'company'
               ? 'Create your company account'
               : 'Almost there'
             : 'Welcome back'}
         </h2>
         <p className="auth-sub">
-          {mode === 'signup'
+          {isQuoteFlow
+            ? 'Sign in or create your company account to continue. New accounts go to the quote form; returning clients open their portal.'
+            : mode === 'google-setup'
+            ? 'Your Google account is linked. Just add your business details and you\'re all set.'
+            : mode === 'signup'
             ? step === 'company'
               ? 'Accounts are company-based — one company, one account. Start with your business details.'
               : 'Set up the login credentials for the person managing this account.'
             : 'Access proposals, reports, and your DigiPros client portal.'}
         </p>
 
-        {!(mode === 'signup' && step === 'account') && (
+        {showOAuthButtons && (
           <>
             <div className="auth-providers">
               {GOOGLE_ENABLED && (
@@ -215,7 +292,7 @@ export default function AuthModal({
                 <button
                   type="button"
                   className="auth-provider auth-provider-apple"
-                  onClick={() => oauthLogin('apple')}
+                  onClick={() => oauthLogin('apple', { intent: isQuoteFlow ? 'quote' : undefined })}
                   disabled={submitting}
                 >
                   <AppleIcon /> Continue with Apple
@@ -253,7 +330,7 @@ export default function AuthModal({
           </>
         )}
 
-        {mode === 'signup' && (
+        {mode === 'signup' && !isQuoteFlow && (
           <div className="auth-stepper" role="list" aria-label="Signup progress">
             <span
               className={`auth-step ${step === 'company' ? 'is-active' : 'is-complete'}`}
@@ -302,14 +379,57 @@ export default function AuthModal({
           </form>
         )}
 
-        {mode === 'signup' && step === 'company' && (
+        {mode === 'signup' && isQuoteFlow && (
+          <form className="auth-form" onSubmit={submitQuoteSignup}>
+            <label>
+              <span>Your name <span className="auth-opt">(optional)</span></span>
+              <input
+                type="text"
+                autoComplete="name"
+                value={account.contact_name}
+                onChange={onAccountChange('contact_name')}
+              />
+            </label>
+            <label>
+              <span>Work email</span>
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={account.email}
+                onChange={onAccountChange('email')}
+              />
+            </label>
+            <label>
+              <span>Password</span>
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={account.password}
+                onChange={onAccountChange('password')}
+              />
+            </label>
+            {error && <p className="auth-error">{error}</p>}
+            <button
+              type="submit"
+              className="btn btn-primary auth-submit"
+              disabled={submitting}
+            >
+              {submitting ? 'Creating account…' : 'Continue to quote'}
+            </button>
+          </form>
+        )}
+
+        {(mode === 'signup' && step === 'company' && !isQuoteFlow) && (
           <form className="auth-form" onSubmit={goToAccountStep}>
             <label>
               <span>Company name</span>
               <input
                 type="text"
                 required
-                placeholder="e.g. Kitsazo Productions LLC"
+                placeholder="e.g. Smith's Hardware LLC"
                 value={company.company_name}
                 onChange={onCompanyChange('company_name')}
               />
@@ -319,44 +439,36 @@ export default function AuthModal({
                 <span>Industry</span>
                 <input
                   type="text"
-                  placeholder="SaaS, e-commerce, agency…"
+                  placeholder="e.g. restaurant, retail, construction…"
                   value={company.industry}
                   onChange={onCompanyChange('industry')}
                 />
               </label>
               <label>
-                <span>Company size</span>
+                <span>Number of employees</span>
                 <select
-                  value={company.company_size}
-                  onChange={onCompanyChange('company_size')}
+                  value={company.employee_count}
+                  onChange={onCompanyChange('employee_count')}
                 >
                   <option value="">Select…</option>
-                  {COMPANY_SIZES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                  {EMPLOYEE_RANGES.map((r) => (
+                    <option key={r} value={r}>{r}</option>
                   ))}
                 </select>
               </label>
             </div>
-            <div className="auth-row">
-              <label>
-                <span>Employees</span>
-                <input
-                  type="number"
-                  min={0}
-                  value={company.employee_count}
-                  onChange={onCompanyChange('employee_count')}
-                />
-              </label>
-              <label>
-                <span>Yearly revenue (USD)</span>
-                <input
-                  type="number"
-                  min={0}
-                  value={company.yearly_revenue}
-                  onChange={onCompanyChange('yearly_revenue')}
-                />
-              </label>
-            </div>
+            <label>
+              <span>Yearly revenue</span>
+              <select
+                value={company.yearly_revenue}
+                onChange={onCompanyChange('yearly_revenue')}
+              >
+                <option value="">Select…</option>
+                {REVENUE_RANGES.map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </label>
             <label>
               <span>Website <span className="auth-opt">(optional)</span></span>
               <input
@@ -401,7 +513,7 @@ export default function AuthModal({
           </form>
         )}
 
-        {mode === 'signup' && step === 'account' && (
+        {mode === 'signup' && step === 'account' && !isQuoteFlow && (
           <form className="auth-form" onSubmit={submitSignup}>
             <label>
               <span>Your name <span className="auth-opt">(account manager)</span></span>
@@ -462,6 +574,87 @@ export default function AuthModal({
                 {submitting ? 'Creating account…' : 'Create account'}
               </button>
             </div>
+          </form>
+        )}
+
+        {mode === 'google-setup' && (
+          <form className="auth-form" onSubmit={submitGoogleSetup}>
+            <label>
+              <span>Company name</span>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Smith's Hardware LLC"
+                value={company.company_name}
+                onChange={onCompanyChange('company_name')}
+              />
+            </label>
+            <div className="auth-row">
+              <label>
+                <span>Industry <span className="auth-opt">(optional)</span></span>
+                <input
+                  type="text"
+                  placeholder="e.g. restaurant, retail, construction…"
+                  value={company.industry}
+                  onChange={onCompanyChange('industry')}
+                />
+              </label>
+              <label>
+                <span>Number of employees <span className="auth-opt">(optional)</span></span>
+                <select
+                  value={company.employee_count}
+                  onChange={onCompanyChange('employee_count')}
+                >
+                  <option value="">Select…</option>
+                  {EMPLOYEE_RANGES.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <label>
+              <span>Yearly revenue <span className="auth-opt">(optional)</span></span>
+              <select
+                value={company.yearly_revenue}
+                onChange={onCompanyChange('yearly_revenue')}
+              >
+                <option value="">Select…</option>
+                {REVENUE_RANGES.map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Business phone <span className="auth-opt">(optional)</span></span>
+              <input
+                type="tel"
+                value={company.business_phone}
+                onChange={onCompanyChange('business_phone')}
+              />
+            </label>
+
+            {error && <p className="auth-error">{error}</p>}
+
+            <button
+              type="submit"
+              className="btn btn-primary auth-submit"
+              disabled={submitting}
+            >
+              {submitting ? 'Saving…' : 'Finish setup'}
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12l5 5L20 7" />
+              </svg>
+            </button>
           </form>
         )}
       </div>

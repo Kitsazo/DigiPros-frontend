@@ -191,6 +191,12 @@
   animation: hero-content-in 0.7s ease;
 }
 
+/* CTAs + trust row stay anchored below the fixed-height title block */
+.hero-cta,
+.hero-trust {
+  flex-shrink: 0;
+}
+
 @keyframes hero-content-in {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -217,16 +223,52 @@
 }
 
 .hero-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.06em;
   font-size: clamp(36px, 5.5vw, 72px);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.05;
-  max-width: 16ch;
+  max-width: min(100%, 22ch);
+}
+
+.hero-title-static {
+  display: block;
+}
+
+/* Grid stacks invisible longest phrase + live rotator in one cell → no layout shift */
+.hero-rotator-slot {
+  display: grid;
+  grid-template-columns: max-content;
+  grid-template-rows: max-content;
+  width: max-content;
+  max-width: 100%;
+}
+
+.hero-rotator-measure,
+.hero-rotator {
+  grid-column: 1;
+  grid-row: 1;
+  font: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.hero-rotator-measure {
+  visibility: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
 }
 
 .hero-rotator {
   display: inline-flex;
   align-items: baseline;
+  justify-self: start;
+  align-self: end;
   background: linear-gradient(
     100deg,
     var(--color-blue-bright) 0%,
@@ -236,11 +278,24 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  min-height: 1em;
 }
 
 .hero-rotator-text {
   white-space: nowrap;
+}
+
+/* On narrow screens the longest phrase may wrap — reserve two lines so CTAs still don't jump */
+@media (max-width: 559px) {
+  .hero-rotator-slot {
+    width: 100%;
+    max-width: 100%;
+    min-height: calc(2 * 1.05em);
+  }
+
+  .hero-rotator-measure {
+    white-space: normal;
+    max-width: 100%;
+  }
 }
 
 .hero-cursor {

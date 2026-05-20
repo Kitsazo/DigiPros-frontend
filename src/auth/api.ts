@@ -9,6 +9,7 @@ import type {
   TokenResponse,
   User,
   UserUpdatePayload,
+  PasswordChangePayload,
 } from './types';
 
 const API_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
@@ -42,11 +43,19 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    throw new ApiError(
+      `Cannot reach the API at ${API_URL}. Is the backend running?`,
+      0,
+    );
+  }
 
   if (res.status === 204) {
     return undefined as T;
@@ -72,6 +81,12 @@ export const api = {
   me: (token: string) => request<User>('/users/me', { token }),
   updateMe: (token: string, payload: UserUpdatePayload) =>
     request<User>('/users/me', { method: 'PUT', body: payload, token }),
+  changePassword: (token: string, payload: PasswordChangePayload) =>
+    request<void>('/users/me/password', {
+      method: 'PUT',
+      body: payload,
+      token,
+    }),
   providers: () =>
     request<{ providers: OAuthProvider[] }>('/auth/providers').catch(
       () => ({ providers: [] as OAuthProvider[] })
@@ -87,6 +102,12 @@ export const api = {
 
   createQuote: (token: string, payload: QuotePayload) =>
     request<Quote>('/quotes', { method: 'POST', body: payload, token }),
+  updateQuote: (token: string, quoteId: number, payload: QuotePayload) =>
+    request<Quote>(`/quotes/${quoteId}`, {
+      method: 'PUT',
+      body: payload,
+      token,
+    }),
   listQuotes: (token: string) => request<Quote[]>('/quotes', { token }),
 
   analytics: (token: string) =>

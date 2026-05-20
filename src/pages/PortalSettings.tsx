@@ -2,15 +2,6 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 
-const COMPANY_SIZES = [
-  'Solo founder',
-  '2 – 10 employees',
-  '11 – 50 employees',
-  '51 – 200 employees',
-  '201 – 1,000 employees',
-  '1,000+ employees',
-];
-
 interface ContactForm {
   contact_name: string;
   phone: string;
@@ -20,7 +11,6 @@ interface ContactForm {
 interface CompanyForm {
   company_name: string;
   industry: string;
-  company_size: string;
   employee_count: string;
   yearly_revenue: string;
   website: string;
@@ -41,7 +31,6 @@ function emptyCompany(): CompanyForm {
   return {
     company_name: '',
     industry: '',
-    company_size: '',
     employee_count: '',
     yearly_revenue: '',
     website: '',
@@ -56,7 +45,7 @@ function emptyCompany(): CompanyForm {
 }
 
 export default function PortalSettings() {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, changePassword } = useAuth();
   const { theme, setTheme } = useTheme();
 
   const [contact, setContact] = useState<ContactForm>(emptyContact);
@@ -70,6 +59,13 @@ export default function PortalSettings() {
   const [companySaved, setCompanySaved] = useState<boolean>(false);
   const [companyError, setCompanyError] = useState<string | null>(null);
 
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordSaved, setPasswordSaved] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!user) return;
     setContact({
@@ -80,7 +76,6 @@ export default function PortalSettings() {
     setCompany({
       company_name: user.company_name ?? '',
       industry: user.industry ?? '',
-      company_size: user.company_size ?? '',
       employee_count:
         user.employee_count != null ? String(user.employee_count) : '',
       yearly_revenue:
@@ -125,6 +120,36 @@ export default function PortalSettings() {
     }
   };
 
+  const onChangePassword = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match.');
+      return;
+    }
+    setPasswordSaving(true);
+    setPasswordError(null);
+    setPasswordSaved(false);
+    try {
+      await changePassword({
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setPasswordSaved(true);
+      window.setTimeout(() => setPasswordSaved(false), 2200);
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Could not update password');
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
   const onSaveCompany = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!company.company_name.trim()) {
@@ -138,13 +163,8 @@ export default function PortalSettings() {
       await updateProfile({
         company_name: company.company_name.trim(),
         industry: company.industry.trim() || null,
-        company_size: company.company_size || null,
-        employee_count: company.employee_count
-          ? Number(company.employee_count)
-          : null,
-        yearly_revenue: company.yearly_revenue
-          ? Number(company.yearly_revenue)
-          : null,
+        employee_count: company.employee_count.trim() || null,
+        yearly_revenue: company.yearly_revenue.trim() || null,
         website: company.website.trim() || null,
         business_phone: company.business_phone.trim() || null,
         address_line1: company.address_line1.trim() || null,
@@ -238,19 +258,7 @@ export default function PortalSettings() {
             />
           </label>
           <label>
-            <span>Company size</span>
-            <select
-              value={company.company_size}
-              onChange={onCompanyChange('company_size')}
-            >
-              <option value="">Select…</option>
-              {COMPANY_SIZES.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span>Employees</span>
+            <span>Number of employees</span>
             <input
               type="number"
               min={0}
@@ -344,6 +352,62 @@ export default function PortalSettings() {
           </button>
         </div>
       </form>
+
+      {user?.has_password && (
+        <form className="portal-card portal-form" onSubmit={onChangePassword}>
+          <header className="portal-card-head">
+            <div>
+              <h2>Password</h2>
+              <p>Update the password you use to sign in with email.</p>
+            </div>
+          </header>
+          <div className="portal-form-grid">
+            <label className="span-2">
+              <span>Current password</span>
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+              />
+            </label>
+            <label>
+              <span>New password</span>
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </label>
+            <label>
+              <span>Confirm new password</span>
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </label>
+          </div>
+          {passwordError && <p className="quote-error">{passwordError}</p>}
+          <div className="portal-form-actions">
+            {passwordSaved && <span className="portal-saved">Password updated ✓</span>}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={passwordSaving}
+            >
+              {passwordSaving ? 'Updating…' : 'Change password'}
+            </button>
+          </div>
+        </form>
+      )}
 
       <form className="portal-card portal-form" onSubmit={onSaveContact}>
         <header className="portal-card-head">

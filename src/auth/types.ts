@@ -9,9 +9,8 @@ export interface User {
 
   company_name: string;
   industry: string | null;
-  company_size: string | null;
-  employee_count: number | null;
-  yearly_revenue: number | null;
+  employee_count: string | null;
+  yearly_revenue: string | null;
   website: string | null;
   business_phone: string | null;
   address_line1: string | null;
@@ -22,11 +21,18 @@ export interface User {
   notes: string | null;
 
   created_at: string;
+  has_password: boolean;
 }
 
 export interface TokenResponse {
   access_token: string;
   token_type: string;
+  is_new?: boolean;
+}
+
+export interface PasswordChangePayload {
+  current_password: string;
+  new_password: string;
 }
 
 export interface SignupPayload {
@@ -35,11 +41,10 @@ export interface SignupPayload {
   contact_name?: string | null;
   phone?: string | null;
 
-  company_name: string;
+  company_name?: string;
   industry?: string | null;
-  company_size?: string | null;
-  employee_count?: number | null;
-  yearly_revenue?: number | null;
+  employee_count?: string | null;
+  yearly_revenue?: string | null;
   website?: string | null;
   business_phone?: string | null;
 }
@@ -57,9 +62,8 @@ export interface UserUpdatePayload {
 
   company_name?: string;
   industry?: string | null;
-  company_size?: string | null;
-  employee_count?: number | null;
-  yearly_revenue?: number | null;
+  employee_count?: string | null;
+  yearly_revenue?: string | null;
   website?: string | null;
   business_phone?: string | null;
   address_line1?: string | null;
@@ -90,9 +94,8 @@ export interface QuotePayload {
 
   company_name: string;
   industry?: string | null;
-  company_size?: string | null;
-  employee_count?: number | null;
-  yearly_revenue?: number | null;
+  employee_count?: string | null;
+  yearly_revenue?: string | null;
 
   monthly_budget?: string | null;
   timeline?: string | null;

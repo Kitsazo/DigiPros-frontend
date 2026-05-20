@@ -37,18 +37,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
       <div className="container navbar-inner">
         <Link to="/" className="navbar-brand" aria-label="DigiPros Marketing home">
           <span className="navbar-logo" aria-hidden="true">
-            <svg viewBox="0 0 64 64" width="28" height="28">
-              <rect width="64" height="64" rx="14" fill="var(--color-blue)" />
-              <path
-                d="M16 44 V20 h12 a10 10 0 0 1 0 20 h-6"
-                stroke="var(--color-yellow)"
-                strokeWidth="6"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <circle cx="46" cy="44" r="4" fill="var(--color-yellow)" />
-            </svg>
+            <img src="/main%20logo.svg" alt="" width="28" height="28" style={{ display: 'block' }} />
           </span>
           <span className="navbar-wordmark">
             DigiPros<span className="accent">.</span>

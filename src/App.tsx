@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
@@ -7,7 +7,7 @@ import AuthCallback from './components/AuthCallback';
 import ThemeToggle from './components/ThemeToggle';
 import ScrollProgress from './components/ScrollProgress';
 import Landing from './pages/Landing';
-import QuotePage from './pages/QuotePage';
+import QuoteGate from './pages/QuoteGate';
 import PortalLayout from './pages/Portal';
 import PortalOverview from './pages/PortalOverview';
 import PortalQuotes from './pages/PortalQuotes';
@@ -15,17 +15,43 @@ import PortalSettings from './pages/PortalSettings';
 import { useAuth } from './auth/AuthContext';
 
 type AuthMode = 'login' | 'signup';
+type AuthIntent = 'default' | 'quote';
 
 export default function App() {
+  const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
+  const [authIntent, setAuthIntent] = useState<AuthIntent>('default');
 
-  const openAuth = useCallback((mode: AuthMode = 'login') => {
-    setAuthMode(mode);
-    setAuthOpen(true);
+  const openAuth = useCallback(
+    (mode: AuthMode = 'login', intent: AuthIntent = 'default') => {
+      setAuthIntent(intent);
+      setAuthMode(mode);
+      setAuthOpen(true);
+    },
+    [],
+  );
+
+  const closeAuth = useCallback(() => {
+    setAuthOpen(false);
+    setAuthIntent('default');
   }, []);
 
-  const closeAuth = useCallback(() => setAuthOpen(false), []);
+  const handleAuthSuccess = useCallback(
+    ({ isNew }: { isNew: boolean }) => {
+      const goToPortal = authIntent === 'quote' && !isNew;
+      closeAuth();
+      if (goToPortal) {
+        navigate('/portal', { replace: true });
+      }
+    },
+    [authIntent, closeAuth, navigate],
+  );
+
+  const openAuthForQuote = useCallback(
+    (mode: AuthMode = 'signup') => openAuth(mode, 'quote'),
+    [openAuth],
+  );
 
   return (
     <div className="app">
@@ -36,7 +62,7 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route
             path="/quote"
-            element={<QuotePage onRequireAuth={openAuth} />}
+            element={<QuoteGate onRequireAuth={openAuthForQuote} />}
           />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route
@@ -55,7 +81,13 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
-      <AuthModal open={authOpen} onClose={closeAuth} defaultMode={authMode} />
+      <AuthModal
+        open={authOpen}
+        onClose={closeAuth}
+        defaultMode={authMode}
+        intent={authIntent}
+        onAuthSuccess={handleAuthSuccess}
+      />
       <ThemeToggle />
     </div>
   );
@@ -71,12 +103,7 @@ function RequireAuth({ children, onRequireAuth }: RequireAuthProps) {
   const location = useLocation();
 
   if (loading) {
-    return (
-      <div className="route-loader" aria-live="polite">
-        <span className="route-loader-spinner" />
-        <span>Loading…</span>
-      </div>
-    );
+    return <RouteLoader />;
   }
 
   if (!user) {
@@ -90,6 +117,15 @@ function RequireAuth({ children, onRequireAuth }: RequireAuthProps) {
   }
 
   return <>{children}</>;
+}
+
+function RouteLoader() {
+  return (
+    <div className="route-loader" aria-live="polite">
+      <span className="route-loader-spinner" />
+      <span>Loading…</span>
+    </div>
+  );
 }
 
 interface RouteAuthPromptProps {
@@ -110,10 +146,10 @@ function RouteAuthPrompt({ onLogin, onSignup, path }: RouteAuthPromptProps) {
           to continue.
         </p>
         <div className="route-auth-actions">
-          <button className="btn btn-primary" onClick={onSignup}>
+          <button className="btn btn-primary" onClick={onSignup} type="button">
             Create account
           </button>
-          <button className="btn btn-ghost" onClick={onLogin}>
+          <button className="btn btn-ghost" onClick={onLogin} type="button">
             Log in
           </button>
         </div>

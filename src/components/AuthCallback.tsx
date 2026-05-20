@@ -17,8 +17,12 @@ export default function AuthCallback() {
     if (token) {
       applyToken(token);
     }
+    const intent = sessionStorage.getItem('digipros.authIntent');
+    sessionStorage.removeItem('digipros.authIntent');
+    const destination = intent === 'quote' ? '/quote' : '/';
+
     const t = window.setTimeout(() => {
-      window.history.replaceState({}, '', '/');
+      window.history.replaceState({}, '', destination);
       window.location.reload();
     }, 350);
     return () => window.clearTimeout(t);

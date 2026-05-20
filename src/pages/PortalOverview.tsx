@@ -76,8 +76,11 @@ export default function PortalOverview() {
           <h1>Welcome back, {companyName}.</h1>
           <p>Here's how things are tracking across your campaigns.</p>
         </div>
-        <Link to="/quote" className="btn btn-primary portal-cta">
-          Request a quote
+        <Link
+          to={quotes.length > 0 ? '/quote?edit=1' : '/quote'}
+          className="btn btn-primary portal-cta"
+        >
+          {quotes.length > 0 ? 'Edit your quote' : 'Get a quote'}
           <svg
             viewBox="0 0 24 24"
             width="16"
@@ -180,7 +183,11 @@ export default function PortalOverview() {
           <header className="portal-card-head">
             <div>
               <h2>Recent quote requests</h2>
-              <p>{quotes.length === 0 ? 'No quote requests yet.' : `${quotes.length} total`}</p>
+              <p>
+                {quotes.length === 0
+                  ? 'No quote request yet.'
+                  : 'Your active quote'}
+              </p>
             </div>
             <Link to="/portal/quotes" className="portal-link-pill">View all →</Link>
           </header>
@@ -190,7 +197,9 @@ export default function PortalOverview() {
                 When you submit a quote it'll show up here so you can track
                 its status.
               </p>
-              <Link to="/quote" className="btn btn-primary">Request a quote</Link>
+              <Link to="/quote" className="btn btn-primary">
+                Get a quote
+              </Link>
             </div>
           ) : (
             <ul className="portal-quotes-list">

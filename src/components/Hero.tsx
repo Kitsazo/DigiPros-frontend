@@ -12,6 +12,9 @@ const ROTATING_WORDS = [
   'compounds.',
 ];
 
+/** Longest phrase — invisible sizer keeps layout from jumping while words cycle. */
+const ROTATOR_MEASURE = 'grows revenue.';
+
 export default function Hero() {
   const word = useTypewriter(ROTATING_WORDS, {
     typeSpeed: 65,
@@ -51,10 +54,15 @@ export default function Hero() {
           </span>
 
           <h1 className="hero-title">
-            Marketing that{' '}
-            <span className="hero-rotator">
-              <span className="hero-rotator-text">{word}</span>
-              <span className="hero-cursor" aria-hidden="true" />
+            <span className="hero-title-static">Marketing that</span>
+            <span className="hero-rotator-slot" aria-live="polite">
+              <span className="hero-rotator-measure" aria-hidden="true">
+                {ROTATOR_MEASURE}
+              </span>
+              <span className="hero-rotator">
+                <span className="hero-rotator-text">{word}</span>
+                <span className="hero-cursor" aria-hidden="true" />
+              </span>
             </span>
           </h1>
 

@@ -1,25 +1,15 @@
 import {
   useEffect,
-  useMemo,
   useState,
   type ChangeEvent,
   type FormEvent,
 } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../auth/api';
-import type { Service } from '../auth/types';
+import type { Quote, Service } from '../auth/types';
 import { FULL_SERVICE_FALLBACK } from '../components/Services';
 import './QuotePage.css';
-
-const COMPANY_SIZES = [
-  'Solo founder',
-  '2 – 10 employees',
-  '11 – 50 employees',
-  '51 – 200 employees',
-  '201 – 1,000 employees',
-  '1,000+ employees',
-];
 
 const BUDGETS = [
   'Under $1,000 / mo',
@@ -30,11 +20,21 @@ const BUDGETS = [
   '$25,000+ / mo',
 ];
 
-const TIMELINES = [
-  'ASAP — within 2 weeks',
-  'Next month',
-  '1 – 3 months out',
-  'Just exploring',
+const EMPLOYEE_RANGES = [
+  'Self-employed',
+  '1–5 employees',
+  '5–10 employees',
+  '10–15 employees',
+  '20–30 employees',
+  '50+ employees',
+];
+
+const REVENUE_RANGES = [
+  '$1,000 – $10,000 / year',
+  '$10,000 – $50,000 / year',
+  '$50,000 – $100,000 / year',
+  '$100,000 – $200,000 / year',
+  '$200,000+ / year',
 ];
 
 const REFERRAL_SOURCES = [
@@ -53,13 +53,10 @@ interface QuoteForm {
   contact_phone: string;
   company_name: string;
   industry: string;
-  company_size: string;
   employee_count: string;
   yearly_revenue: string;
   monthly_budget: string;
-  timeline: string;
   goals: string;
-  notes: string;
   referral_source: string;
 }
 
@@ -69,66 +66,69 @@ const EMPTY_FORM: QuoteForm = {
   contact_phone: '',
   company_name: '',
   industry: '',
-  company_size: '',
   employee_count: '',
   yearly_revenue: '',
   monthly_budget: '',
-  timeline: '',
   goals: '',
-  notes: '',
   referral_source: '',
 };
 
-interface QuotePageProps {
-  onRequireAuth: (mode?: 'login' | 'signup') => void;
+function quoteToForm(quote: Quote): QuoteForm {
+  return {
+    contact_name: quote.contact_name,
+    contact_email: quote.contact_email,
+    contact_phone: quote.contact_phone ?? '',
+    company_name: quote.company_name,
+    industry: quote.industry ?? '',
+    employee_count: quote.employee_count ?? '',
+    yearly_revenue: quote.yearly_revenue ?? '',
+    monthly_budget: quote.monthly_budget ?? '',
+    goals: quote.goals ?? '',
+    referral_source: quote.referral_source ?? '',
+  };
 }
 
-export default function QuotePage({ onRequireAuth }: QuotePageProps) {
-  const [params] = useSearchParams();
+interface QuotePageProps {
+  editing?: boolean;
+}
+
+export default function QuotePage({ editing = false }: QuotePageProps) {
   const navigate = useNavigate();
-  const { user, token } = useAuth();
+  const { user, token, updateProfile } = useAuth();
 
-  const serviceSlug = params.get('service') ?? FULL_SERVICE_FALLBACK.slug;
-  const [service, setService] = useState<Service>(FULL_SERVICE_FALLBACK);
-  const [allServices, setAllServices] = useState<Service[]>([FULL_SERVICE_FALLBACK]);
-
+  const [service] = useState<Service>(FULL_SERVICE_FALLBACK);
   const [form, setForm] = useState<QuoteForm>(EMPTY_FORM);
+  const [existingQuoteId, setExistingQuoteId] = useState<number | null>(null);
+  const [loadingQuote, setLoadingQuote] = useState<boolean>(editing);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [done, setDone] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let alive = true;
+    if (!editing || !token) {
+      setLoadingQuote(false);
+      return;
+    }
+
+    let cancelled = false;
     api
-      .listServices()
-      .then((list) => {
-        if (!alive || !list?.length) return;
-        setAllServices(list);
+      .listQuotes(token)
+      .then((quotes) => {
+        if (cancelled || quotes.length === 0) return;
+        setExistingQuoteId(quotes[0].id);
+        setForm(quoteToForm(quotes[0]));
       })
-      .catch(() => undefined);
+      .finally(() => {
+        if (!cancelled) setLoadingQuote(false);
+      });
+
     return () => {
-      alive = false;
+      cancelled = true;
     };
-  }, []);
+  }, [editing, token]);
 
   useEffect(() => {
-    let alive = true;
-    api.getService(serviceSlug).then(
-      (s) => {
-        if (alive && s) setService(s);
-      },
-      () => {
-        if (alive) setService(FULL_SERVICE_FALLBACK);
-      },
-    );
-    return () => {
-      alive = false;
-    };
-  }, [serviceSlug]);
-
-  // Pre-fill from the signed-in company account.
-  useEffect(() => {
-    if (!user) return;
+    if (!user || editing) return;
     setForm((f) => ({
       ...f,
       contact_name: f.contact_name || user.contact_name || '',
@@ -136,7 +136,6 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
       contact_phone: f.contact_phone || user.phone || user.business_phone || '',
       company_name: f.company_name || user.company_name,
       industry: f.industry || user.industry || '',
-      company_size: f.company_size || user.company_size || '',
       employee_count:
         f.employee_count ||
         (user.employee_count != null ? String(user.employee_count) : ''),
@@ -144,41 +143,59 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
         f.yearly_revenue ||
         (user.yearly_revenue != null ? String(user.yearly_revenue) : ''),
     }));
-  }, [user]);
-
-  const services = useMemo(() => allServices, [allServices]);
+  }, [user, editing]);
 
   const onChange =
     (k: keyof QuoteForm) =>
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  const buildPayload = () => ({
+    service_slug: service.slug,
+    service_name: service.name,
+    contact_name: form.contact_name,
+    contact_email: form.contact_email,
+    contact_phone: form.contact_phone || null,
+    company_name: form.company_name,
+    industry: form.industry || null,
+    employee_count: form.employee_count || null,
+    yearly_revenue: form.yearly_revenue || null,
+    monthly_budget: form.monthly_budget || null,
+    timeline: null,
+    goals: form.goals || null,
+    notes: null,
+    referral_source: form.referral_source || null,
+  });
+
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!token) {
-      onRequireAuth('signup');
-      return;
-    }
+    if (!token) return;
+
     setSubmitting(true);
     setError(null);
     try {
-      await api.createQuote(token, {
-        service_slug: service.slug,
-        service_name: service.name,
-        contact_name: form.contact_name,
-        contact_email: form.contact_email,
-        contact_phone: form.contact_phone || null,
-        company_name: form.company_name,
-        industry: form.industry || null,
-        company_size: form.company_size || null,
-        employee_count: form.employee_count ? Number(form.employee_count) : null,
-        yearly_revenue: form.yearly_revenue ? Number(form.yearly_revenue) : null,
-        monthly_budget: form.monthly_budget || null,
-        timeline: form.timeline || null,
-        goals: form.goals || null,
-        notes: form.notes || null,
-        referral_source: form.referral_source || null,
+      const payload = buildPayload();
+
+      if (editing && existingQuoteId) {
+        await api.updateQuote(token, existingQuoteId, payload);
+      } else {
+        await api.createQuote(token, payload);
+      }
+
+      await updateProfile({
+        company_name: form.company_name.trim(),
+        industry: form.industry.trim() || null,
+        employee_count: form.employee_count || null,
+        yearly_revenue: form.yearly_revenue || null,
+        contact_name: form.contact_name.trim() || null,
+        phone: form.contact_phone.trim() || null,
       });
+
+      if (editing) {
+        navigate('/portal/quotes', { replace: true });
+        return;
+      }
+
       setDone(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
@@ -187,6 +204,15 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
       setSubmitting(false);
     }
   };
+
+  if (loadingQuote) {
+    return (
+      <div className="route-loader" aria-live="polite">
+        <span className="route-loader-spinner" />
+        <span>Loading your quote…</span>
+      </div>
+    );
+  }
 
   if (done) {
     return (
@@ -228,12 +254,20 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
     );
   }
 
+  const submitLabel = editing
+    ? submitting
+      ? 'Saving…'
+      : 'Save changes'
+    : submitting
+    ? 'Sending…'
+    : 'Submit quote request';
+
   return (
     <section className="quote-page section">
       <div className="container quote-layout">
         <aside className="quote-aside">
           <div className="quote-aside-card">
-            <Link to="/#services" className="quote-back">
+            <Link to={editing ? '/portal' : '/#services'} className="quote-back">
               <svg
                 viewBox="0 0 24 24"
                 width="14"
@@ -248,9 +282,11 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
                 <path d="M19 12H5" />
                 <path d="M11 5l-7 7 7 7" />
               </svg>
-              Back to services
+              {editing ? 'Back to portal' : 'Back to services'}
             </Link>
-            <span className="eyebrow">Get a free quote</span>
+            <span className="eyebrow">
+              {editing ? 'Edit your quote' : 'Get a free quote'}
+            </span>
             <h1 className="quote-title">{service.name}</h1>
             <p className="quote-tagline">{service.tagline}</p>
             {service.starts_at && (
@@ -298,29 +334,6 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
           <div className="quote-form-section">
             <div className="quote-form-section-head">
               <span className="quote-section-num">1</span>
-              <div>
-                <h2>Service</h2>
-                <p>What are you looking to get a quote for?</p>
-              </div>
-            </div>
-            <label className="quote-field">
-              <span>Selected service</span>
-              <select
-                value={service.slug}
-                onChange={(e) =>
-                  navigate(`/quote?service=${encodeURIComponent(e.target.value)}`)
-                }
-              >
-                {services.map((s) => (
-                  <option key={s.slug} value={s.slug}>{s.name}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="quote-form-section">
-            <div className="quote-form-section-head">
-              <span className="quote-section-num">2</span>
               <div>
                 <h2>About you</h2>
                 <p>How we'll reach you with the proposal.</p>
@@ -370,7 +383,7 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
 
           <div className="quote-form-section">
             <div className="quote-form-section-head">
-              <span className="quote-section-num">3</span>
+              <span className="quote-section-num">2</span>
               <div>
                 <h2>About your company</h2>
                 <p>The more detail you share, the sharper the quote.</p>
@@ -391,49 +404,43 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
                 <span>Industry</span>
                 <input
                   type="text"
-                  placeholder="SaaS, e-commerce, agency…"
+                  placeholder="e.g. restaurant, retail, construction…"
                   value={form.industry}
                   onChange={onChange('industry')}
                 />
               </label>
               <label className="quote-field">
-                <span>Company size</span>
+                <span>Number of employees</span>
                 <select
-                  value={form.company_size}
-                  onChange={onChange('company_size')}
+                  value={form.employee_count}
+                  onChange={onChange('employee_count')}
                 >
                   <option value="">Select…</option>
-                  {COMPANY_SIZES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                  {EMPLOYEE_RANGES.map((r) => (
+                    <option key={r} value={r}>{r}</option>
                   ))}
                 </select>
               </label>
               <label className="quote-field">
-                <span>Employees</span>
-                <input
-                  type="number"
-                  min={0}
-                  value={form.employee_count}
-                  onChange={onChange('employee_count')}
-                />
-              </label>
-              <label className="quote-field">
-                <span>Yearly revenue (USD)</span>
-                <input
-                  type="number"
-                  min={0}
+                <span>Yearly revenue</span>
+                <select
                   value={form.yearly_revenue}
                   onChange={onChange('yearly_revenue')}
-                />
+                >
+                  <option value="">Select…</option>
+                  {REVENUE_RANGES.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
               </label>
             </div>
           </div>
 
           <div className="quote-form-section">
             <div className="quote-form-section-head">
-              <span className="quote-section-num">4</span>
+              <span className="quote-section-num">3</span>
               <div>
-                <h2>Budget &amp; timeline</h2>
+                <h2>Budget</h2>
                 <p>Helps us match the right team and scope.</p>
               </div>
             </div>
@@ -450,24 +457,12 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
                   ))}
                 </select>
               </label>
-              <label className="quote-field">
-                <span>Timeline</span>
-                <select
-                  value={form.timeline}
-                  onChange={onChange('timeline')}
-                >
-                  <option value="">Select…</option>
-                  {TIMELINES.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </label>
             </div>
           </div>
 
           <div className="quote-form-section">
             <div className="quote-form-section-head">
-              <span className="quote-section-num">5</span>
+              <span className="quote-section-num">4</span>
               <div>
                 <h2>Your goals</h2>
                 <p>What does success look like in the next 6 months?</p>
@@ -477,38 +472,28 @@ export default function QuotePage({ onRequireAuth }: QuotePageProps) {
               <span>Primary goals</span>
               <textarea
                 rows={4}
-                placeholder="e.g. 3× monthly demo requests, hit $500K MRR, launch into the UK market…"
+                placeholder="e.g. get more customers, grow my online presence, increase sales…"
                 value={form.goals}
                 onChange={onChange('goals')}
-              />
-            </label>
-            <label className="quote-field">
-              <span>Anything else we should know? <span className="quote-opt">(optional)</span></span>
-              <textarea
-                rows={3}
-                value={form.notes}
-                onChange={onChange('notes')}
               />
             </label>
           </div>
 
           {error && <p className="quote-error">{error}</p>}
 
-          {!token && (
-            <p className="quote-auth-hint">
-              You'll create your company account when you submit — it takes
-              under a minute and gives you access to your client portal.
-            </p>
-          )}
-
           <div className="quote-submit-row">
-            <Link to="/#services" className="btn btn-ghost">Cancel</Link>
+            <Link
+              to={editing ? '/portal' : '/#services'}
+              className="btn btn-ghost"
+            >
+              Cancel
+            </Link>
             <button
               type="submit"
               className="btn btn-primary quote-submit"
               disabled={submitting}
             >
-              {submitting ? 'Sending…' : token ? 'Submit quote request' : 'Continue & submit'}
+              {submitLabel}
               <svg
                 viewBox="0 0 24 24"
                 width="16"
