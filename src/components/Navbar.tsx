@@ -9,6 +9,7 @@ interface NavbarProps {
 
 const sectionLinks: { hash: string; label: string }[] = [
   { hash: '#about', label: 'About' },
+  { hash: '#stats', label: 'Results' },
   { hash: '#services', label: 'Services' },
   { hash: '#contact', label: 'Contact' },
 ];
@@ -20,10 +21,21 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => {
+      const scrollable = Math.max(
+        document.documentElement.scrollHeight - window.innerHeight,
+        1,
+      );
+      const progress = window.scrollY / scrollable;
+      setScrolled(progress >= 0.05);
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -78,7 +90,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                 </span>
                 <span className="navbar-user">{user.company_name}</span>
               </Link>
-              <button className="btn btn-ghost navbar-cta navbar-cta-logout" onClick={logout}>
+              <button type="button" className="navbar-logout-btn" onClick={logout}>
                 Log out
               </button>
             </>

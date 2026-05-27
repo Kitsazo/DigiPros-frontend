@@ -85,165 +85,169 @@ export default function Services() {
   const offering = OFFERINGS[active];
 
   return (
-    <section id="services" className="services section">
+    <section id="services" className="services section section-dark">
       <div className="services-bg" aria-hidden="true">
         <span className="services-blob services-blob-blue" />
         <span className="services-blob services-blob-yellow" />
       </div>
 
-      <div className="container services-inner">
-        <div className="services-layout">
-          {/* Left panel */}
-          <Reveal className="services-left">
-            <span className="eyebrow">What we do</span>
-            <h2 className="services-title">
-              Everything you need to grow —{' '}
-              <span className="services-title-accent">in one engagement.</span>
-            </h2>
-            <p className="services-sub">
-              DigiPros is your full-service marketing partner. Strategy, ads,
-              SEO, content, web, email, and social — one team, one contract,
-              one set of results. Built for businesses right here in South
-              Georgia that want real growth, not confusing tech-speak.
-            </p>
-            <p className="services-pricing">
-              <span className="services-pricing-label">Pricing</span>
-              <strong>Custom — tailored per engagement</strong>
-              <span>Retainers typically start between $2,500 and $25,000 / mo based on your goals and scope.</span>
-            </p>
-            <Link
-              to={`/quote?service=${FULL_SERVICE_FALLBACK.slug}`}
-              className="btn btn-primary services-cta"
-            >
-              Get a free quote
-              <svg
-                viewBox="0 0 24 24"
-                width="16"
-                height="16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M5 12h14" />
-                <path d="M13 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </Reveal>
-
-          {/* Right panel — cycling card */}
-          <Reveal direction="up" delay={120} className="services-right">
-            <div
-              className="service-card"
-              onMouseEnter={() => setPaused(true)}
-              onMouseLeave={() => setPaused(false)}
-            >
-              {/* Glow */}
-              <div className="service-card-glow" aria-hidden="true" />
-
-              {/* Progress dots */}
-              <div className="service-card-dots" role="tablist" aria-label="Services">
-                {OFFERINGS.map((o, i) => (
-                  <button
-                    key={o.name}
-                    role="tab"
-                    aria-selected={i === active}
-                    aria-label={o.name}
-                    className={`service-card-dot ${i === active ? 'is-active' : ''}`}
-                    onClick={() => goTo(i, i > active ? 'next' : 'prev')}
-                  />
-                ))}
-              </div>
-
-              {/* Card content */}
-              <div
-                key={active}
-                className={`service-card-body service-card-body--${animDir}`}
-              >
-                {/* Illustration */}
-                <div className="service-card-illustration" aria-hidden="true">
-                  <ServiceIllustration index={active} />
-                </div>
-
-                <div className="service-card-text">
-                  <p className="service-card-num">
-                    {String(active + 1).padStart(2, '0')} / {String(OFFERINGS.length).padStart(2, '0')}
-                  </p>
-                  <h3 className="service-card-name">{offering.name}</h3>
-                  <p className="service-card-tagline">{offering.tagline}</p>
-                  <p className="service-card-benefit">{offering.benefit}</p>
-                </div>
-              </div>
-
-              {/* Navigation */}
-              <div className="service-card-nav">
-                <button
-                  className="service-card-btn"
-                  onClick={goPrev}
-                  aria-label="Previous service"
+      <div className="services-scroll-track">
+        <div className="services-sticky">
+          <div className="container services-inner">
+            <div className="services-layout">
+              {/* Left panel */}
+              <Reveal className="services-left">
+                <span className="eyebrow">What we do</span>
+                <h2 className="services-title">
+                  Everything you need to grow —{' '}
+                  <span className="services-title-accent">in one engagement.</span>
+                </h2>
+                <p className="services-sub">
+                  DigiPros is your full-service marketing partner. Strategy, ads,
+                  SEO, content, web, email, and social — one team, one contract,
+                  one set of results. Built for businesses right here in South
+                  Georgia that want real growth, not confusing tech-speak.
+                </p>
+                <p className="services-pricing">
+                  <span className="services-pricing-label">Pricing</span>
+                  <strong>Custom — tailored per engagement</strong>
+                  <span>Retainers typically start between $2,500 and $25,000 / mo based on your goals and scope.</span>
+                </p>
+                <Link
+                  to={`/quote?service=${FULL_SERVICE_FALLBACK.slug}`}
+                  className="btn btn-primary services-cta"
                 >
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M19 12H5" /><path d="M11 5l-7 7 7 7" />
+                  Get a free quote
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M13 5l7 7-7 7" />
                   </svg>
-                  Prev
-                </button>
-                <button
-                  className="service-card-btn service-card-btn--next"
-                  onClick={goNext}
-                  aria-label="Next service"
+                </Link>
+              </Reveal>
+
+              {/* Right panel — cycling card */}
+              <Reveal direction="up" delay={120} className="services-right">
+                <div
+                  className="service-card"
+                  onMouseEnter={() => setPaused(true)}
+                  onMouseLeave={() => setPaused(false)}
                 >
-                  Next
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14" /><path d="M13 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
+                  {/* Glow */}
+                  <div className="service-card-glow" aria-hidden="true" />
+
+                  {/* Progress dots */}
+                  <div className="service-card-dots" role="tablist" aria-label="Services">
+                    {OFFERINGS.map((o, i) => (
+                      <button
+                        key={o.name}
+                        role="tab"
+                        aria-selected={i === active}
+                        aria-label={o.name}
+                        className={`service-card-dot ${i === active ? 'is-active' : ''}`}
+                        onClick={() => goTo(i, i > active ? 'next' : 'prev')}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Card content */}
+                  <div
+                    key={active}
+                    className={`service-card-body service-card-body--${animDir}`}
+                  >
+                    {/* Illustration */}
+                    <div className="service-card-illustration" aria-hidden="true">
+                      <ServiceIllustration index={active} />
+                    </div>
+
+                    <div className="service-card-text">
+                      <p className="service-card-num">
+                        {String(active + 1).padStart(2, '0')} / {String(OFFERINGS.length).padStart(2, '0')}
+                      </p>
+                      <h3 className="service-card-name">{offering.name}</h3>
+                      <p className="service-card-tagline">{offering.tagline}</p>
+                      <p className="service-card-benefit">{offering.benefit}</p>
+                    </div>
+                  </div>
+
+                  {/* Navigation */}
+                  <div className="service-card-nav">
+                    <button
+                      className="service-card-btn"
+                      onClick={goPrev}
+                      aria-label="Previous service"
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 12H5" /><path d="M11 5l-7 7 7 7" />
+                      </svg>
+                      Prev
+                    </button>
+                    <button
+                      className="service-card-btn service-card-btn--next"
+                      onClick={goNext}
+                      aria-label="Next service"
+                    >
+                      Next
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 12h14" /><path d="M13 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </Reveal>
             </div>
-          </Reveal>
-        </div>
 
-        {/* Promises row */}
-        <Reveal direction="up" delay={200}>
-          <ul className="services-promises">
-            <li>
-              <span className="services-promise-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2l3 7h7l-5.5 4.5L18 22l-6-4-6 4 1.5-8.5L2 9h7z" />
-                </svg>
-              </span>
-              <div>
-                <strong>One team, one contract</strong>
-                <span>No agency juggling. Everything lands in one place, with one team who knows your business.</span>
-              </div>
-            </li>
-            <li>
-              <span className="services-promise-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 17l5-5 4 4 8-9" />
-                  <path d="M14 7h6v6" />
-                </svg>
-              </span>
-              <div>
-                <strong>Real results, plain language</strong>
-                <span>We report on what matters — more customers and more revenue — not confusing numbers.</span>
-              </div>
-            </li>
-            <li>
-              <span className="services-promise-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 7v5l3 2" />
-                </svg>
-              </span>
-              <div>
-                <strong>Up and running fast</strong>
-                <span>From your first call to live campaigns in 2–4 weeks. No months of back-and-forth.</span>
-              </div>
-            </li>
-          </ul>
-        </Reveal>
+            {/* Promises row */}
+            <Reveal direction="up" delay={200}>
+              <ul className="services-promises">
+                <li>
+                  <span className="services-promise-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2l3 7h7l-5.5 4.5L18 22l-6-4-6 4 1.5-8.5L2 9h7z" />
+                    </svg>
+                  </span>
+                  <div>
+                    <strong>One team, one contract</strong>
+                    <span>No agency juggling. Everything lands in one place, with one team who knows your business.</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="services-promise-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 17l5-5 4 4 8-9" />
+                      <path d="M14 7h6v6" />
+                    </svg>
+                  </span>
+                  <div>
+                    <strong>Real results, plain language</strong>
+                    <span>We report on what matters — more customers and more revenue — not confusing numbers.</span>
+                  </div>
+                </li>
+                <li>
+                  <span className="services-promise-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 7v5l3 2" />
+                    </svg>
+                  </span>
+                  <div>
+                    <strong>Up and running fast</strong>
+                    <span>From your first call to live campaigns in 2–4 weeks. No months of back-and-forth.</span>
+                  </div>
+                </li>
+              </ul>
+            </Reveal>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -2,7 +2,7 @@
 
 .services {
   position: relative;
-  background: var(--color-white);
+  background: var(--color-snow);
   overflow: hidden;
 }
 
@@ -10,25 +10,15 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  background: radial-gradient(
+    ellipse 60% 40% at 0% 100%,
+    color-mix(in srgb, var(--color-rose) 6%, transparent) 0%,
+    transparent 50%
+  );
 }
 
 .services-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.22;
-}
-
-.services-blob-blue {
-  width: 520px; height: 520px;
-  top: -200px; right: -140px;
-  background: var(--color-blue);
-}
-
-.services-blob-yellow {
-  width: 380px; height: 380px;
-  bottom: -160px; left: -120px;
-  background: var(--color-yellow);
+  display: none;
 }
 
 .services-inner {
@@ -37,6 +27,19 @@
   display: flex;
   flex-direction: column;
   gap: 56px;
+}
+
+.services-scroll-track {
+  position: relative;
+  height: 260vh;
+}
+
+.services-sticky {
+  position: sticky;
+  top: 74px;
+  min-height: calc(100vh - 74px);
+  display: flex;
+  align-items: center;
 }
 
 /* ─── Two-column layout ─────────────────────────────────────── */
@@ -64,10 +67,12 @@
 }
 
 .services-title {
-  font-size: clamp(26px, 3.5vw, 42px);
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4vw, 48px);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--color-ink);
 }
 
 .services-title-accent {
@@ -106,6 +111,7 @@
   font-size: 16px;
   font-weight: 800;
   letter-spacing: -0.01em;
+  color: var(--color-ink);
 }
 
 .services-pricing span {
@@ -118,6 +124,7 @@
   padding: 14px 22px;
   gap: 8px;
   font-size: 15px;
+  color: #ffffff;
   background: linear-gradient(100deg, var(--color-blue) 0%, var(--color-blue-bright) 100%);
   transition: transform 0.2s ease, gap 0.18s ease;
 }
@@ -135,20 +142,54 @@
 
 .service-card {
   position: relative;
-  background: linear-gradient(
-    160deg,
-    color-mix(in srgb, var(--color-elevated) 97%, transparent) 0%,
-    color-mix(in srgb, var(--color-elevated) 90%, transparent) 100%
-  );
-  border: 1.5px solid color-mix(in srgb, var(--color-blue) 24%, var(--color-cloud));
-  border-radius: 26px;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-cloud);
+  border-radius: var(--radius-lg);
   padding: clamp(24px, 3.5vw, 40px);
   display: flex;
   flex-direction: column;
   gap: 24px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
   min-height: 460px;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.services.section-dark .services-title-accent {
+  background: linear-gradient(100deg, var(--color-blue-bright) 0%, #f4a7b5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.services.section-dark .services-pricing {
+  background: color-mix(in srgb, var(--color-white) 20%, var(--color-elevated));
+  border-color: color-mix(in srgb, var(--color-blue) 40%, var(--color-cloud));
+}
+
+.services.section-dark .service-card-illustration {
+  background: color-mix(in srgb, var(--color-blue) 10%, #0d0d11);
+}
+
+.services.section-dark .service-card-benefit {
+  color: var(--color-ink);
+  opacity: 0.9;
+}
+
+.services.section-dark .service-card-btn {
+  color: var(--color-ink-soft);
+  border-color: var(--color-cloud);
+}
+
+.services.section-dark .service-card-btn:hover {
+  background: color-mix(in srgb, var(--color-blue) 20%, transparent);
+  color: var(--color-blue-bright);
+  border-color: var(--color-blue);
+}
+
+.service-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: color-mix(in srgb, var(--color-blue) 30%, var(--color-cloud));
 }
 
 .service-card-glow {
@@ -247,6 +288,7 @@
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.2;
+  color: var(--color-ink);
 }
 
 .service-card-tagline {
@@ -460,6 +502,7 @@
   font-size: 14px;
   font-weight: 800;
   margin-bottom: 4px;
+  color: var(--color-ink);
 }
 
 .services-promises li span {
@@ -471,6 +514,15 @@
 /* ─── Reduced motion ────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
+  .services-scroll-track {
+    height: auto;
+  }
+
+  .services-sticky {
+    position: static;
+    min-height: auto;
+  }
+
   .svc-ring-1, .svc-ring-2, .svc-ring-3,
   .svc-bar-1, .svc-bar-2, .svc-bar-3,
   .svc-trend, .svc-glass, .svc-result-1, .svc-result-2, .svc-result-3,
@@ -488,5 +540,16 @@
   }
   .service-card-body {
     animation: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .services-scroll-track {
+    height: auto;
+  }
+
+  .services-sticky {
+    position: static;
+    min-height: auto;
   }
 }

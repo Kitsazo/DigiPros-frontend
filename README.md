@@ -83,8 +83,14 @@ OAuth buttons. After an OAuth redirect the backend lands at
 ```bash
 cd Frontend
 npm install
-copy .env.example .env       # adjust VITE_API_URL if your backend isn't on :8000
+cp .env.example .env         # on Windows use: copy .env.example .env
 npm run dev                  # http://localhost:5173
+```
+
+From the workspace root you can also run:
+
+```bash
+npm run dev
 ```
 
 ## Build for production

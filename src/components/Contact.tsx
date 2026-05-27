@@ -47,7 +47,7 @@ const channels: Channel[] = [
 
 export default function Contact() {
   return (
-    <section id="contact" className="contact section">
+    <section id="contact" className="contact section section-dark">
       <div className="container">
         <Reveal className="contact-card" direction="up">
           <div className="contact-card-bg" aria-hidden="true" />

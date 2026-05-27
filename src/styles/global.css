@@ -1,21 +1,13 @@
 /* ---------- Theme tokens ---------- */
 
 :root {
-  --color-white: #0b0b0d;
-  --color-snow: #111114;
-  --color-elevated: #18181c;
-  --color-cloud: #2b2b32;
-  --color-ink: #f4f5fb;
-  --color-ink-soft: #c5c8d8;
-
-  /* Primary accents (actual hues) */
-  --color-periwinkle: #9C91CD;
+  /* Brand accents */
+  --color-periwinkle: #9c91cd;
   --color-periwinkle-bright: #b7addd;
-  --color-periwinkle-deep: #2b2540;
-  --color-rose: #D7798B;
-  --color-rose-soft: #2a1d22;
+  --color-periwinkle-deep: #ebe8f5;
+  --color-rose: #d7798b;
+  --color-rose-soft: #fdf0f3;
 
-  /* Legacy aliases kept for compatibility across component styles */
   --color-blue: var(--color-periwinkle);
   --color-blue-bright: var(--color-periwinkle-bright);
   --color-blue-light: var(--color-periwinkle-deep);
@@ -23,12 +15,12 @@
   --color-yellow-soft: var(--color-rose-soft);
 
   --color-on-brand: #ffffff;
-  --color-on-accent: var(--color-periwinkle);
+  --color-on-accent: #0a0a0c;
   --color-focus-ring: color-mix(in srgb, var(--color-periwinkle) 35%, transparent);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 2px rgba(10, 10, 12, 0.06);
+  --shadow-md: 0 8px 30px rgba(10, 10, 12, 0.08);
+  --shadow-lg: 0 24px 60px rgba(10, 10, 12, 0.12);
 
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -36,9 +28,41 @@
 
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont,
     'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font-sans);
 
   --max-width: 1200px;
-  --section-pad-y: clamp(64px, 9vw, 128px);
+  --section-pad-y: clamp(72px, 10vw, 140px);
+}
+
+/* Light sections (default) */
+body,
+.section-light {
+  --color-white: #ffffff;
+  --color-snow: #f7f7f9;
+  --color-elevated: #ffffff;
+  --color-cloud: #e4e4ea;
+  --color-ink: #0a0a0c;
+  --color-ink-soft: #5c5c6a;
+  --shadow-sm: 0 1px 2px rgba(10, 10, 12, 0.06);
+  --shadow-md: 0 8px 30px rgba(10, 10, 12, 0.08);
+  --shadow-lg: 0 24px 60px rgba(10, 10, 12, 0.1);
+}
+
+/* Dark sections — Ondo-style contrast bands */
+.section-dark {
+  --color-white: #0a0a0c;
+  --color-snow: #111114;
+  --color-elevated: #18181c;
+  --color-cloud: #2b2b32;
+  --color-ink: #f4f5fb;
+  --color-ink-soft: #a8abb8;
+  --color-periwinkle-deep: #2b2540;
+  --color-rose-soft: #2a1d22;
+  --color-blue-light: var(--color-periwinkle-deep);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.5);
+  color: var(--color-ink);
 }
 
 * {
@@ -55,7 +79,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
-  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 body {
@@ -108,7 +131,7 @@ main {
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(20px, 4vw, 32px);
 }
 
 .section {
@@ -120,13 +143,13 @@ main {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
-  background: color-mix(in srgb, var(--color-blue) 18%, transparent);
+  padding: 6px 14px;
+  background: color-mix(in srgb, var(--color-blue) 12%, transparent);
   color: var(--color-blue);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   border-radius: 999px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -138,13 +161,18 @@ main {
   background: var(--color-yellow);
 }
 
+.eyebrow-on-dark {
+  background: color-mix(in srgb, var(--color-blue) 22%, transparent);
+  color: var(--color-blue-bright);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 22px;
-  border-radius: 12px;
+  padding: 14px 24px;
+  border-radius: 999px;
   font-weight: 600;
   font-size: 15px;
   transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease,
@@ -158,40 +186,66 @@ main {
 }
 
 .btn-primary {
-  background: var(--color-blue);
-  color: var(--color-on-brand);
+  background: var(--color-ink);
+  color: var(--color-white);
   box-shadow: var(--shadow-md);
 }
 
+.section-dark .btn-primary {
+  background: linear-gradient(
+    100deg,
+    var(--color-blue) 0%,
+    var(--color-blue-bright) 100%
+  );
+  color: #ffffff;
+}
+
+.section-light .btn-primary,
+body .btn-primary {
+  background: var(--color-ink);
+  color: #ffffff;
+}
+
+.section-dark .btn-ghost {
+  color: var(--color-ink);
+  border-color: var(--color-cloud);
+  background: color-mix(in srgb, var(--color-ink) 6%, transparent);
+}
+
+.section-dark .btn-ghost:hover {
+  color: var(--color-ink);
+  border-color: var(--color-blue);
+  background: color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+
 .btn-primary:hover {
-  background: var(--color-blue-bright);
+  background: color-mix(in srgb, var(--color-ink) 85%, var(--color-blue));
   box-shadow: var(--shadow-lg);
 }
 
 .btn-secondary {
   background: var(--color-yellow);
-  color: var(--color-on-accent);
+  color: #ffffff;
 }
 
 .btn-secondary:hover {
-  background: #fde047;
+  filter: brightness(1.06);
 }
 
 .btn-ghost {
-  background: var(--color-white);
+  background: transparent;
   color: var(--color-ink);
   border-color: var(--color-cloud);
 }
 
 .btn-ghost:hover {
-  border-color: var(--color-blue);
-  color: var(--color-blue);
+  border-color: var(--color-ink);
+  background: var(--color-snow);
 }
 
 .btn:focus-visible {
   outline: none;
-  box-shadow: var(--shadow-md),
-    0 0 0 3px var(--color-focus-ring);
+  box-shadow: var(--shadow-md), 0 0 0 3px var(--color-focus-ring);
 }
 
 .btn:active {
@@ -227,7 +281,9 @@ main {
 }
 
 @keyframes route-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Sign-in wall */
@@ -245,8 +301,9 @@ main {
 }
 
 .route-auth-wall h1 {
-  font-size: clamp(24px, 4vw, 34px);
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 400;
 }
 
 .route-auth-wall p {
@@ -261,7 +318,6 @@ main {
   margin-top: 8px;
 }
 
-/* Smooth in-page scroll offset for sticky navbar */
 :target {
   scroll-margin-top: 100px;
 }

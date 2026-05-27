@@ -45,7 +45,7 @@ const features: Feature[] = [
 
 export default function About() {
   return (
-    <section id="about" className="about section">
+    <section id="about" className="about section section-light">
       <div className="about-bg" aria-hidden="true">
         <span className="about-orb about-orb-1" />
         <span className="about-orb about-orb-2" />
@@ -55,7 +55,7 @@ export default function About() {
         <Reveal className="about-head">
           <span className="eyebrow">Why DigiPros</span>
           <h2 className="about-title">
-            A small team, obsessed with your <em>numbers</em>.
+            A small team, obsessed with your <em>numbers</em>
           </h2>
           <p className="about-sub">
             We blend strategy, design, and analytics into one tight loop — so

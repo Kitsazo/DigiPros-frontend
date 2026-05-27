@@ -1,23 +1,31 @@
+.contact {
+  position: relative;
+  overflow: hidden;
+}
+
+.contact::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-ink) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-ink) 5%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(180deg, transparent 0%, black 30%, black 100%);
+  pointer-events: none;
+}
+
 .contact-card {
   position: relative;
   overflow: hidden;
-  background: radial-gradient(
-      circle at 10% -20%,
-      color-mix(in srgb, #7E397C 38%, transparent) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      circle at 110% 120%,
-      color-mix(in srgb, #D7798B 32%, transparent) 0%,
-      transparent 65%
-    ),
-    var(--color-elevated);
+  background: var(--color-elevated);
   color: var(--color-ink);
+  border: 1px solid var(--color-cloud);
   border-radius: var(--radius-lg);
-  padding: clamp(36px, 6vw, 64px);
+  padding: clamp(40px, 6vw, 72px);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 36px;
+  gap: 40px;
   box-shadow: var(--shadow-lg);
 }
 
@@ -25,15 +33,10 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(
-      circle at 85% 15%,
-      color-mix(in srgb, #9C91CD 40%, transparent) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      circle at 15% 110%,
-      color-mix(in srgb, #D7798B 45%, transparent) 0%,
-      transparent 55%
-    );
+    circle at 100% 0%,
+    color-mix(in srgb, var(--color-blue) 18%, transparent) 0%,
+    transparent 50%
+  );
   pointer-events: none;
 }
 
@@ -43,26 +46,26 @@
   z-index: 1;
 }
 
-.contact-text .eyebrow {
-  background: color-mix(in srgb, #9C91CD 26%, transparent);
-  color: #fdfbff;
-}
-
 .contact-title {
-  font-size: clamp(28px, 4vw, 44px);
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.5vw, 48px);
   font-weight: 800;
+  letter-spacing: -0.03em;
   margin-top: 14px;
+  color: var(--color-ink);
 }
 
 .contact-title .accent {
-  color: var(--color-yellow);
+  font-style: italic;
+  color: var(--color-blue-bright);
 }
 
 .contact-sub {
-  margin-top: 12px;
+  margin-top: 14px;
   color: var(--color-ink-soft);
   font-size: 17px;
-  max-width: 56ch;
+  max-width: 52ch;
+  line-height: 1.65;
 }
 
 .contact-actions {
@@ -75,48 +78,47 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px 18px;
-  background: color-mix(in srgb, var(--color-elevated) 92%, transparent);
-  border: 1px solid color-mix(in srgb, #9C91CD 32%, var(--color-cloud));
+  padding: 18px 20px;
+  background: var(--color-snow);
+  border: 1px solid var(--color-cloud);
   border-radius: var(--radius-md);
-  transition: background 0.2s ease, transform 0.15s ease,
-    border-color 0.2s ease;
+  transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
   color: var(--color-ink);
 }
 
 .contact-chip:hover {
-  background: color-mix(in srgb, #7E397C 26%, var(--color-elevated));
-  border-color: #9C91CD;
+  background: color-mix(in srgb, var(--color-blue) 8%, var(--color-snow));
+  border-color: color-mix(in srgb, var(--color-blue) 35%, var(--color-cloud));
   transform: translateY(-2px);
 }
 
 .contact-chip-primary {
-  background: #D7798B;
-  border-color: #D7798B;
-  color: #9C91CD;
+  background: linear-gradient(100deg, var(--color-blue) 0%, var(--color-blue-bright) 100%);
+  border-color: transparent;
+  color: #ffffff;
 }
 
 .contact-chip-primary:hover {
-  background: #e48799;
-  border-color: #e48799;
-  color: #9C91CD;
+  filter: brightness(1.06);
 }
 
 .contact-chip-primary .contact-chip-icon {
-  background: rgba(0, 0, 0, 0.08);
-  color: #fef2f6;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: none;
 }
 
 .contact-chip-primary .contact-chip-text span {
-  color: rgba(24, 8, 20, 0.76);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .contact-chip-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: color-mix(in srgb, #9C91CD 40%, #7E397C 60%);
-  color: #fdfbff;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-cloud);
+  color: var(--color-ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -126,6 +128,7 @@
 .contact-chip-text {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .contact-chip-text strong {
@@ -135,7 +138,7 @@
 
 .contact-chip-text span {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--color-ink-soft);
 }
 
 @media (min-width: 880px) {

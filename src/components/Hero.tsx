@@ -56,7 +56,7 @@ export default function Hero() {
   };
 
   return (
-    <section id="top" className="hero section">
+    <section id="top" className="hero section section-dark">
       <div className="hero-bg" aria-hidden="true">
         <video
           ref={primaryVideoRef}
@@ -101,7 +101,7 @@ export default function Hero() {
                 {ROTATOR_MEASURE}
               </span>
               <span className="hero-rotator">
-                <span className="hero-rotator-text">{word}</span>
+                <span className="hero-rotator-text">{word || '\u00a0'}</span>
                 <span className="hero-cursor" aria-hidden="true" />
               </span>
             </span>

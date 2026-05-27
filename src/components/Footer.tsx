@@ -17,6 +17,7 @@ export default function Footer() {
         </p>
         <nav className="footer-links" aria-label="Footer">
           <Link to="/#about">About</Link>
+          <Link to="/#stats">Results</Link>
           <Link to="/#services">Services</Link>
           <Link to="/#contact">Contact</Link>
           <Link to="/portal">Portal</Link>

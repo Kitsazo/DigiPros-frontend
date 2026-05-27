@@ -34,6 +34,13 @@ interface AuthModalProps {
 
 type Mode = 'login' | 'signup' | 'google-setup';
 type SignupStep = 'company' | 'account';
+type GoogleSignInButtonProps = {
+  disabled: boolean;
+  onStart: () => void;
+  onSuccess: (accessToken: string) => Promise<void>;
+  onError: (message: string) => void;
+  onEnd: () => void;
+};
 
 interface AccountForm {
   email: string;
@@ -87,27 +94,6 @@ export default function AuthModal({
     onAuthSuccess?.({ isNew });
     onClose();
   };
-
-  const googleSignIn = useGoogleLogin({
-    onSuccess: async (response) => {
-      setError(null);
-      setSubmitting(true);
-      try {
-        const { isNew } = await loginWithGoogle(response.access_token);
-        if (isNew && !isQuoteFlow) {
-          setCompany(EMPTY_COMPANY);
-          setMode('google-setup');
-        } else {
-          finishAuth(isNew);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Google sign-in failed');
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    onError: () => setError('Google sign-in was cancelled or failed.'),
-  });
 
   useEffect(() => {
     if (!open) return;
@@ -279,14 +265,24 @@ export default function AuthModal({
           <>
             <div className="auth-providers">
               {GOOGLE_ENABLED && (
-                <button
-                  type="button"
-                  className="auth-provider"
-                  onClick={() => googleSignIn()}
+                <GoogleSignInButton
                   disabled={submitting}
-                >
-                  <GoogleIcon /> Continue with Google
-                </button>
+                  onStart={() => {
+                    setError(null);
+                    setSubmitting(true);
+                  }}
+                  onSuccess={async (accessToken: string) => {
+                    const { isNew } = await loginWithGoogle(accessToken);
+                    if (isNew && !isQuoteFlow) {
+                      setCompany(EMPTY_COMPANY);
+                      setMode('google-setup');
+                      return;
+                    }
+                    finishAuth(isNew);
+                  }}
+                  onError={(message: string) => setError(message)}
+                  onEnd={() => setSubmitting(false)}
+                />
               )}
               {providers.includes('apple') && (
                 <button
@@ -659,6 +655,39 @@ export default function AuthModal({
         )}
       </div>
     </div>
+  );
+}
+
+function GoogleSignInButton({
+  disabled,
+  onStart,
+  onSuccess,
+  onError,
+  onEnd,
+}: GoogleSignInButtonProps) {
+  const googleSignIn = useGoogleLogin({
+    onSuccess: async (response) => {
+      onStart();
+      try {
+        await onSuccess(response.access_token);
+      } catch (err) {
+        onError(err instanceof Error ? err.message : 'Google sign-in failed');
+      } finally {
+        onEnd();
+      }
+    },
+    onError: () => onError('Google sign-in was cancelled or failed.'),
+  });
+
+  return (
+    <button
+      type="button"
+      className="auth-provider"
+      onClick={() => googleSignIn()}
+      disabled={disabled}
+    >
+      <GoogleIcon /> Continue with Google
+    </button>
   );
 }
 

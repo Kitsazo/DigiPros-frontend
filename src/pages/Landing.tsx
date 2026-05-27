@@ -4,6 +4,7 @@ import About from '../components/About';
 import Contact from '../components/Contact';
 import Hero from '../components/Hero';
 import Services from '../components/Services';
+import Stats from '../components/Stats';
 
 export default function Landing() {
   const { hash } = useLocation();
@@ -24,6 +25,7 @@ export default function Landing() {
     <>
       <Hero />
       <About />
+      <Stats />
       <Services />
       <Contact />
     </>
