@@ -19,8 +19,6 @@
   opacity: 0.22;
 }
 
-[data-theme='light'] .services-blob { opacity: 0.4; }
-
 .services-blob-blue {
   width: 520px; height: 520px;
   top: -200px; right: -140px;

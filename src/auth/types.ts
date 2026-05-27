@@ -5,7 +5,6 @@ export interface User {
   contact_name: string | null;
   phone: string | null;
   avatar_url: string | null;
-  theme: 'light' | 'dark';
 
   company_name: string;
   industry: string | null;
@@ -58,7 +57,6 @@ export interface UserUpdatePayload {
   contact_name?: string | null;
   phone?: string | null;
   avatar_url?: string | null;
-  theme?: 'light' | 'dark';
 
   company_name?: string;
   industry?: string | null;

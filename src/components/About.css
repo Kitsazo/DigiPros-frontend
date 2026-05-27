@@ -17,10 +17,6 @@
   opacity: 0.2;
 }
 
-[data-theme='light'] .about-orb {
-  opacity: 0.4;
-}
-
 .about-orb-1 {
   width: 360px;
   height: 360px;
@@ -149,10 +145,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-[data-theme='light'] .about-card-icon {
-  background: var(--color-blue-light);
 }
 
 .about-card h3 {

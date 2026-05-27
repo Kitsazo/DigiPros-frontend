@@ -4,7 +4,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './auth/AuthContext';
-import { ThemeProvider } from './theme/ThemeContext';
 import './styles/global.css';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
@@ -26,9 +25,7 @@ createRoot(rootEl).render(
     {withGoogle(
       <BrowserRouter>
         <AuthProvider>
-          <ThemeProvider>
-            <App />
-          </ThemeProvider>
+          <App />
         </AuthProvider>
       </BrowserRouter>,
     )}

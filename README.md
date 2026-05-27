@@ -23,8 +23,6 @@ Frontend/
     │   ├── types.ts          # User, payloads, OAuthProvider
     │   ├── api.ts            # fetch wrapper + tokenStore
     │   └── AuthContext.tsx   # AuthProvider + useAuth()
-    ├── theme/
-    │   └── ThemeContext.tsx
     ├── hooks/
     │   ├── useReveal.ts          # IntersectionObserver-driven scroll reveal
     │   ├── useTilt.ts            # cursor-following 3D tilt
@@ -35,7 +33,7 @@ Frontend/
     │   ├── Portal.(tsx|css)      # /portal layout + sidebar
     │   ├── PortalOverview.tsx    # analytics dashboard
     │   ├── PortalQuotes.tsx      # quote history
-    │   └── PortalSettings.tsx    # appearance + company info + contact
+    │   └── PortalSettings.tsx    # company info + contact
     └── components/
         ├── Navbar.(tsx|css)
         ├── Hero.(tsx|css)        # left-aligned title w/ rotating typewriter
@@ -48,7 +46,6 @@ Frontend/
         ├── AuthCallback.tsx
         ├── Reveal.(tsx|css)      # scroll-triggered fade/slide wrapper
         ├── ScrollProgress.(tsx|css) # top page-scroll progress bar
-        └── ThemeToggle.(tsx|css)
 ```
 
 Accounts are **company-based** — one company == one account. The
@@ -66,7 +63,7 @@ re-skin the whole site.
   account if the visitor isn't signed in yet)
 - `/portal` — client portal dashboard with placeholder analytics
 - `/portal/quotes` — quote history
-- `/portal/settings` — appearance, company info, account-manager contact
+- `/portal/settings` — company info, account-manager contact
 - `/auth/callback` — OAuth redirect target
 
 Auth lives under `src/auth/`:

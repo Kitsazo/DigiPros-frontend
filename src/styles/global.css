@@ -1,5 +1,4 @@
 /* ---------- Theme tokens ---------- */
-/* Dark mode is the default. Light mode is opt-in via [data-theme="light"]. */
 
 :root {
   --color-white: #0b0b0d;
@@ -40,32 +39,6 @@
 
   --max-width: 1200px;
   --section-pad-y: clamp(64px, 9vw, 128px);
-}
-
-[data-theme='light'] {
-  --color-white: #f8f8fa;
-  --color-snow: #ffffff;
-  --color-elevated: #ffffff;
-  --color-cloud: #e9e9ef;
-  --color-ink: #111111;
-  --color-ink-soft: #5c5c66;
-
-  --color-periwinkle: #9C91CD;
-  --color-periwinkle-bright: #b7addd;
-  --color-periwinkle-deep: #efeafd;
-  --color-rose: #D7798B;
-  --color-rose-soft: #fde8ed;
-
-  /* Keep aliases in light mode as well */
-  --color-blue: var(--color-periwinkle);
-  --color-blue-bright: #b7addd;
-  --color-blue-light: var(--color-periwinkle-deep);
-  --color-yellow: var(--color-rose);
-  --color-yellow-soft: var(--color-rose-soft);
-
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 8px 24px rgba(30, 64, 175, 0.08);
-  --shadow-lg: 0 24px 48px rgba(30, 64, 175, 0.18);
 }
 
 * {

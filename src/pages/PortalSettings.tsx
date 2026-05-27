@@ -1,6 +1,5 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { useTheme } from '../theme/ThemeContext';
 
 interface ContactForm {
   contact_name: string;
@@ -46,7 +45,6 @@ function emptyCompany(): CompanyForm {
 
 export default function PortalSettings() {
   const { user, updateProfile, changePassword } = useAuth();
-  const { theme, setTheme } = useTheme();
 
   const [contact, setContact] = useState<ContactForm>(emptyContact);
   const [company, setCompany] = useState<CompanyForm>(emptyCompany);
@@ -189,48 +187,9 @@ export default function PortalSettings() {
         <div>
           <span className="eyebrow">Settings</span>
           <h1>Account settings</h1>
-          <p>Manage your company info, contact details, and appearance.</p>
+          <p>Manage your company info and contact details.</p>
         </div>
       </header>
-
-      <div className="portal-card">
-        <header className="portal-card-head">
-          <div>
-            <h2>Appearance</h2>
-            <p>Pick the theme that's easiest on your eyes.</p>
-          </div>
-        </header>
-        <div className="theme-picker" role="radiogroup" aria-label="Theme">
-          <button
-            type="button"
-            role="radio"
-            aria-checked={theme === 'light'}
-            className={`theme-option ${theme === 'light' ? 'is-active' : ''}`}
-            onClick={() => setTheme('light', { persistRemote: true })}
-          >
-            <span className="theme-preview theme-preview-light" aria-hidden="true">
-              <span className="theme-preview-bar" />
-              <span className="theme-preview-dot" />
-            </span>
-            <strong>Light</strong>
-            <small>Crisp, bright UI for daytime work.</small>
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={theme === 'dark'}
-            className={`theme-option ${theme === 'dark' ? 'is-active' : ''}`}
-            onClick={() => setTheme('dark', { persistRemote: true })}
-          >
-            <span className="theme-preview theme-preview-dark" aria-hidden="true">
-              <span className="theme-preview-bar" />
-              <span className="theme-preview-dot" />
-            </span>
-            <strong>Dark</strong>
-            <small>Easy on the eyes after sundown.</small>
-          </button>
-        </div>
-      </div>
 
       <form className="portal-card portal-form" onSubmit={onSaveCompany}>
         <header className="portal-card-head">
