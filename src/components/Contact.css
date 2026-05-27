@@ -1,12 +1,18 @@
-.contact {
-  background: var(--color-snow);
-}
-
 .contact-card {
   position: relative;
   overflow: hidden;
-  background: var(--color-blue);
-  color: var(--color-on-brand);
+  background: radial-gradient(
+      circle at 10% -20%,
+      color-mix(in srgb, #7E397C 38%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 110% 120%,
+      color-mix(in srgb, #D7798B 32%, transparent) 0%,
+      transparent 65%
+    ),
+    var(--color-elevated);
+  color: var(--color-ink);
   border-radius: var(--radius-lg);
   padding: clamp(36px, 6vw, 64px);
   display: grid;
@@ -18,16 +24,15 @@
 .contact-card-bg {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(
+  background: radial-gradient(
       circle at 85% 15%,
-      rgba(250, 204, 21, 0.35) 0%,
-      transparent 45%
+      color-mix(in srgb, #9C91CD 40%, transparent) 0%,
+      transparent 55%
     ),
     radial-gradient(
       circle at 15% 110%,
-      rgba(37, 99, 235, 0.6) 0%,
-      transparent 50%
+      color-mix(in srgb, #D7798B 45%, transparent) 0%,
+      transparent 55%
     );
   pointer-events: none;
 }
@@ -39,8 +44,8 @@
 }
 
 .contact-text .eyebrow {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--color-on-brand);
+  background: color-mix(in srgb, #9C91CD 26%, transparent);
+  color: #fdfbff;
 }
 
 .contact-title {
@@ -55,7 +60,7 @@
 
 .contact-sub {
   margin-top: 12px;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--color-ink-soft);
   font-size: 17px;
   max-width: 56ch;
 }
@@ -71,47 +76,47 @@
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: color-mix(in srgb, var(--color-elevated) 92%, transparent);
+  border: 1px solid color-mix(in srgb, #9C91CD 32%, var(--color-cloud));
   border-radius: var(--radius-md);
   transition: background 0.2s ease, transform 0.15s ease,
     border-color 0.2s ease;
-  color: var(--color-on-brand);
+  color: var(--color-ink);
 }
 
 .contact-chip:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: var(--color-yellow);
+  background: color-mix(in srgb, #7E397C 26%, var(--color-elevated));
+  border-color: #9C91CD;
   transform: translateY(-2px);
 }
 
 .contact-chip-primary {
-  background: var(--color-yellow);
-  border-color: var(--color-yellow);
-  color: var(--color-on-accent);
+  background: #D7798B;
+  border-color: #D7798B;
+  color: #9C91CD;
 }
 
 .contact-chip-primary:hover {
-  background: #fde047;
-  border-color: #fde047;
-  color: var(--color-on-accent);
+  background: #e48799;
+  border-color: #e48799;
+  color: #9C91CD;
 }
 
 .contact-chip-primary .contact-chip-icon {
-  background: rgba(0, 0, 0, 0.12);
-  color: var(--color-on-accent);
+  background: rgba(0, 0, 0, 0.08);
+  color: #fef2f6;
 }
 
 .contact-chip-primary .contact-chip-text span {
-  color: rgba(11, 23, 54, 0.7);
+  color: rgba(24, 8, 20, 0.76);
 }
 
 .contact-chip-icon {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: var(--color-yellow);
-  color: var(--color-on-accent);
+  background: color-mix(in srgb, #9C91CD 40%, #7E397C 60%);
+  color: #fdfbff;
   display: inline-flex;
   align-items: center;
   justify-content: center;

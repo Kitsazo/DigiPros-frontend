@@ -78,7 +78,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                 </span>
                 <span className="navbar-user">{user.company_name}</span>
               </Link>
-              <button className="btn btn-ghost navbar-cta" onClick={logout}>
+              <button className="btn btn-ghost navbar-cta navbar-cta-logout" onClick={logout}>
                 Log out
               </button>
             </>

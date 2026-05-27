@@ -4,7 +4,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import AuthCallback from './components/AuthCallback';
-import ThemeToggle from './components/ThemeToggle';
 import ScrollProgress from './components/ScrollProgress';
 import Landing from './pages/Landing';
 import QuoteGate from './pages/QuoteGate';
@@ -88,7 +87,6 @@ export default function App() {
         intent={authIntent}
         onAuthSuccess={handleAuthSuccess}
       />
-      <ThemeToggle />
     </div>
   );
 }

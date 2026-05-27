@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTypewriter } from '../hooks/useTypewriter';
 import HeroDashboard from './HeroDashboard';
@@ -16,6 +17,11 @@ const ROTATING_WORDS = [
 const ROTATOR_MEASURE = 'grows revenue.';
 
 export default function Hero() {
+  const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
+  const secondaryVideoRef = useRef<HTMLVideoElement | null>(null);
+  const isTransitioningRef = useRef(false);
+  const [activeLayer, setActiveLayer] = useState<'primary' | 'secondary'>('primary');
+
   const word = useTypewriter(ROTATING_WORDS, {
     typeSpeed: 65,
     eraseSpeed: 34,
@@ -23,27 +29,62 @@ export default function Hero() {
     pauseMs: 280,
   });
 
+  const handleVideoTimeUpdate = () => {
+    if (isTransitioningRef.current) return;
+
+    const currentVideo =
+      activeLayer === 'primary' ? primaryVideoRef.current : secondaryVideoRef.current;
+    const nextVideo =
+      activeLayer === 'primary' ? secondaryVideoRef.current : primaryVideoRef.current;
+
+    if (!currentVideo || !nextVideo || !Number.isFinite(currentVideo.duration)) return;
+
+    const crossfadeMs = 700;
+    const secondsRemaining = currentVideo.duration - currentVideo.currentTime;
+    if (secondsRemaining > crossfadeMs / 1000 + 0.06) return;
+
+    isTransitioningRef.current = true;
+    nextVideo.currentTime = 0;
+    void nextVideo.play();
+    setActiveLayer((prev) => (prev === 'primary' ? 'secondary' : 'primary'));
+
+    window.setTimeout(() => {
+      currentVideo.pause();
+      currentVideo.currentTime = 0;
+      isTransitioningRef.current = false;
+    }, crossfadeMs + 60);
+  };
+
   return (
     <section id="top" className="hero section">
       <div className="hero-bg" aria-hidden="true">
-        <div className="hero-grid" />
-        <div className="hero-blob hero-blob-blue" />
-        <div className="hero-blob hero-blob-yellow" />
-        <div className="hero-blob hero-blob-violet" />
-        <div className="hero-glow" />
-        <div className="hero-particles">
-          {Array.from({ length: 18 }).map((_, i) => (
-            <span
-              key={i}
-              className="hero-particle"
-              style={{
-                left: `${(i * 5.5) % 100}%`,
-                animationDelay: `${(i % 6) * 0.6}s`,
-                animationDuration: `${10 + (i % 5) * 1.5}s`,
-              }}
-            />
-          ))}
-        </div>
+        <video
+          ref={primaryVideoRef}
+          className={`hero-video hero-video-primary${
+            activeLayer === 'primary' ? ' hero-video-active' : ''
+          }`}
+          autoPlay
+          muted
+          playsInline
+          preload="metadata"
+          onTimeUpdate={activeLayer === 'primary' ? handleVideoTimeUpdate : undefined}
+        >
+          <source src="/hero-background.mp4" type="video/mp4" />
+        </video>
+        <video
+          ref={secondaryVideoRef}
+          className={`hero-video hero-video-secondary${
+            activeLayer === 'secondary' ? ' hero-video-active' : ''
+          }`}
+          muted
+          playsInline
+          preload="metadata"
+          onTimeUpdate={activeLayer === 'secondary' ? handleVideoTimeUpdate : undefined}
+        >
+          <source src="/hero-background.mp4" type="video/mp4" />
+        </video>
+        <div className="hero-video-edge-glow hero-video-edge-glow-left" />
+        <div className="hero-video-edge-glow hero-video-edge-glow-right" />
       </div>
 
       <div className="container hero-inner">

@@ -1,8 +1,9 @@
 .hero {
   position: relative;
   overflow: hidden;
-  padding-top: clamp(90px, 12vw, 160px);
-  padding-bottom: clamp(80px, 10vw, 140px);
+  padding-top: clamp(74px, 9vw, 120px);
+  padding-bottom: clamp(56px, 8vw, 96px);
+  min-height: clamp(620px, 78vh, 820px);
 }
 
 /* ---------- Background ---------- */
@@ -12,156 +13,47 @@
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  background: #000;
 }
 
-.hero-grid {
+.hero-video {
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(
-      to right,
-      color-mix(in srgb, var(--color-ink) 10%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--color-ink) 10%, transparent) 1px,
-      transparent 1px
-    );
-  background-size: 48px 48px;
-  mask-image: radial-gradient(
-    ellipse at 50% 30%,
-    rgba(0, 0, 0, 0.55),
-    transparent 70%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse at 50% 30%,
-    rgba(0, 0, 0, 0.55),
-    transparent 70%
-  );
-  animation: hero-grid-pan 60s linear infinite;
-}
-
-@keyframes hero-grid-pan {
-  from { background-position: 0 0; }
-  to   { background-position: 48px 48px; }
-}
-
-.hero-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(110px);
-  opacity: 0.32;
-  will-change: transform;
-}
-
-[data-theme='light'] .hero-blob {
-  opacity: 0.55;
-}
-
-.hero-blob-blue {
-  width: 540px;
-  height: 540px;
-  background: var(--color-blue);
-  top: -160px;
-  left: -160px;
-  animation: hero-blob-drift-1 18s ease-in-out infinite;
-}
-
-.hero-blob-yellow {
-  width: 460px;
-  height: 460px;
-  background: var(--color-yellow);
-  top: 30%;
-  right: -180px;
-  animation: hero-blob-drift-2 22s ease-in-out infinite;
-}
-
-.hero-blob-violet {
-  width: 400px;
-  height: 400px;
-  background: #a78bfa;
-  bottom: -160px;
-  left: 30%;
-  opacity: 0.22;
-  animation: hero-blob-drift-3 24s ease-in-out infinite;
-}
-
-[data-theme='light'] .hero-blob-violet {
-  opacity: 0.35;
-}
-
-.hero-glow {
-  position: absolute;
-  top: -10%;
-  left: 50%;
-  width: 80%;
-  height: 60%;
-  transform: translateX(-50%);
-  background: radial-gradient(
-    closest-side,
-    color-mix(in srgb, var(--color-blue) 22%, transparent) 0%,
-    transparent 100%
-  );
-  filter: blur(40px);
-}
-
-[data-theme='light'] .hero-glow {
-  background: radial-gradient(
-    closest-side,
-    color-mix(in srgb, var(--color-blue) 14%, transparent) 0%,
-    transparent 100%
-  );
-}
-
-.hero-particles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-.hero-particle {
-  position: absolute;
-  bottom: -20px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--color-yellow) 70%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--color-yellow) 50%, transparent);
-  animation: hero-particle-rise linear infinite;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
   opacity: 0;
+  transition: opacity 0.7s ease;
 }
 
-[data-theme='light'] .hero-particle {
-  background: color-mix(in srgb, var(--color-blue) 50%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--color-blue) 35%, transparent);
+.hero-video-active {
+  opacity: 1;
 }
 
-@keyframes hero-particle-rise {
-  0%   { transform: translateY(0) scale(0.6); opacity: 0; }
-  15%  { opacity: 0.9; }
-  100% { transform: translateY(-120vh) scale(1); opacity: 0; }
+.hero-video-edge-glow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: min(18vw, 220px);
+  pointer-events: none;
+  z-index: 1;
+  filter: blur(34px);
+  opacity: 0.8;
 }
 
-@keyframes hero-blob-drift-1 {
-  0%   { transform: translate(0, 0)        scale(1); }
-  25%  { transform: translate(60px, 40px)  scale(1.08); }
-  50%  { transform: translate(20px, 80px)  scale(0.96); }
-  75%  { transform: translate(-30px, 30px) scale(1.04); }
-  100% { transform: translate(0, 0)        scale(1); }
+.hero-video-edge-glow-left {
+  left: -30px;
+  background:
+    radial-gradient(circle at left center, color-mix(in srgb, #D7798B 36%, transparent) 0%, transparent 72%),
+    radial-gradient(circle at left center, color-mix(in srgb, #7E397C 34%, transparent) 16%, transparent 76%);
 }
 
-@keyframes hero-blob-drift-2 {
-  0%   { transform: translate(0, 0)         scale(1); }
-  25%  { transform: translate(-50px, 30px)  scale(0.95); }
-  50%  { transform: translate(-20px, 70px)  scale(1.07); }
-  75%  { transform: translate(40px, 20px)   scale(1.02); }
-  100% { transform: translate(0, 0)         scale(1); }
-}
-
-@keyframes hero-blob-drift-3 {
-  0%   { transform: translate(0, 0)        scale(1); }
-  50%  { transform: translate(-50px, -40px) scale(1.1); }
-  100% { transform: translate(0, 0)        scale(1); }
+.hero-video-edge-glow-right {
+  right: -30px;
+  background:
+    radial-gradient(circle at right center, color-mix(in srgb, #9C91CD 38%, transparent) 0%, transparent 72%),
+    radial-gradient(circle at right center, color-mix(in srgb, #7E397C 30%, transparent) 18%, transparent 76%);
 }
 
 /* ---------- Layout ---------- */
@@ -230,8 +122,9 @@
   font-size: clamp(36px, 5.5vw, 72px);
   font-weight: 800;
   letter-spacing: -0.03em;
-  line-height: 1.05;
+  line-height: 1.08;
   max-width: min(100%, 22ch);
+  padding-bottom: 0.1em;
 }
 
 .hero-title-static {
@@ -245,6 +138,7 @@
   grid-template-rows: max-content;
   width: max-content;
   max-width: 100%;
+  overflow: visible;
 }
 
 .hero-rotator-measure,
@@ -269,6 +163,7 @@
   align-items: baseline;
   justify-self: start;
   align-self: end;
+  padding-bottom: 0.08em;
   background: linear-gradient(
     100deg,
     var(--color-blue-bright) 0%,
@@ -381,9 +276,17 @@
 }
 
 .hero-cta-ghost {
-  background: color-mix(in srgb, var(--color-white) 70%, transparent);
+  background: color-mix(in srgb, #9C91CD 18%, var(--color-white));
+  color: var(--color-ink);
+  border-color: color-mix(in srgb, #9C91CD 35%, var(--color-cloud));
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+
+.hero-cta-ghost:hover {
+  color: #f5f2ff;
+  border-color: #9C91CD;
+  background: color-mix(in srgb, #7E397C 35%, var(--color-white));
 }
 
 .hero-trust {
@@ -400,7 +303,7 @@
   flex-direction: column;
   gap: 4px;
   padding-left: 14px;
-  border-left: 2px solid color-mix(in srgb, var(--color-blue) 35%, transparent);
+  border-left: 2px solid color-mix(in srgb, #7E397C 55%, transparent);
 }
 
 .hero-trust strong {
@@ -492,9 +395,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-grid,
-  .hero-blob,
-  .hero-particle,
   .hero-eyebrow-dot,
   .hero-cursor,
   .hero-scroll-wheel,
