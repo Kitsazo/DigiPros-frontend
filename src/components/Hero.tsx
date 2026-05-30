@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTypewriter } from '../hooks/useTypewriter';
+import BrandLogo from './BrandLogo';
 import HeroDashboard from './HeroDashboard';
 import './Hero.css';
 
@@ -89,10 +90,9 @@ export default function Hero() {
 
       <div className="container hero-inner">
         <div className="hero-content">
-          <span className="eyebrow hero-eyebrow">
-            <span className="hero-eyebrow-dot" />
-            DigiPros Marketing
-          </span>
+          <div className="eyebrow hero-eyebrow">
+            <BrandLogo className="hero-brand-logo" height={40} />
+          </div>
 
           <h1 className="hero-title">
             <span className="hero-title-static">Marketing that</span>

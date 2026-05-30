@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import BrandLogo from './BrandLogo';
 import './Footer.css';
 
 export default function Footer() {
@@ -7,10 +8,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="container footer-inner">
         <div className="footer-brand">
-          <span className="footer-dot" aria-hidden="true" />
-          <span>
-            DigiPros Marketing<span className="accent">.</span>
-          </span>
+          <BrandLogo height={28} />
         </div>
         <p className="footer-copy">
           © {year} DigiPros Marketing. All rights reserved.

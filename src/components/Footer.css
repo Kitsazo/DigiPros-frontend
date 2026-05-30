@@ -17,20 +17,10 @@
 .footer-brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  color: #f4f5fb;
 }
 
-.footer-brand .accent {
-  color: var(--color-rose);
-}
-
-.footer-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-periwinkle);
+.footer-brand img {
+  max-width: min(200px, 48vw);
 }
 
 .footer-links {

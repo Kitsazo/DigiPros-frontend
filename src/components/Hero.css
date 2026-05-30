@@ -109,21 +109,10 @@
 .hero-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
 }
 
-.hero-eyebrow-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-yellow);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-yellow) 30%, transparent);
-  animation: hero-eyebrow-pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes hero-eyebrow-pulse {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.25); }
+.hero-brand-logo {
+  max-width: min(280px, 72vw);
 }
 
 .hero-title {
@@ -422,7 +411,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-eyebrow-dot,
   .hero-cursor,
   .hero-scroll-wheel,
   .hero-content,

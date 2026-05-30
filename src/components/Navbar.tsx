@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import BrandLogo from './BrandLogo';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -48,12 +49,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     <header className={`navbar ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="container navbar-inner">
         <Link to="/" className="navbar-brand" aria-label="DigiPros Marketing home">
-          <span className="navbar-logo" aria-hidden="true">
-            <img src="/main%20logo.svg" alt="" width="28" height="28" style={{ display: 'block' }} />
-          </span>
-          <span className="navbar-wordmark">
-            DigiPros<span className="accent">.</span>
-          </span>
+          <BrandLogo className="navbar-brand-logo" height={34} />
         </Link>
 
         <nav
